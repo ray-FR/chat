@@ -10,6 +10,25 @@
 #include <poll.h>
 
 
+typedef struct user_t{
+    int sfd;
+    char* name;
+} user;
+
+typedef struct channel_t{
+    char* name;
+    int member_count;
+    user* member_list;
+} channel;
+
+typedef struct channels_t{
+    int max_channels;
+    int channel_counter;
+    channel* channel_names;
+
+} channels;
+
+
 int serv(char* port){
     struct addrinfo hints, *gai, *ai;
     int err;
@@ -39,7 +58,6 @@ int serv(char* port){
             perror("bind");
             continue;
         }
-        printf("Server online!\n");
 
         while(1){
         if (listen(sfd, 8) < 0){
