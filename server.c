@@ -10,7 +10,7 @@
 #include <poll.h>
 
 
-int nc_serv(char* port){
+int serv(char* port){
     struct addrinfo hints, *gai, *ai;
     int err;
     int sfd; 
@@ -46,7 +46,6 @@ int nc_serv(char* port){
             perror("listen");
             continue;
         }
-        printf("Waiting for a connection...\n");
         if ((acc = (accept(sfd, ai->ai_addr, &ai->ai_addrlen))) < 0) {
             perror("accept");
             exit(EXIT_FAILURE);
@@ -74,18 +73,14 @@ int main(int argc, char** argv){
     int ret;
     
     uint8_t buf[1024];
-    struct pollfd pfd[2];
-    if(argc == 1){
+    struct pollfd pfd[30];
+    if(argc == 1 || argc > 3){
         fprintf(stderr, "Usage: ./nc [HOST] PORT\n");
         exit(EXIT_FAILURE);
     }
-    if(argc > 3){
-        fprintf(stderr, "Usage: ./nc [HOST] PORT\n");
-        exit(EXIT_FAILURE);    
-    }
-    
+
     if (argc == 2){
-       sfd = nc_serv(argv[1]); 
+       sfd = serv(argv[1]); 
     }
     
     
