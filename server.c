@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <poll.h>
 
+#define MAXNUM 30
+
 
 typedef struct user_t{
     int sfd;
@@ -34,6 +36,23 @@ typedef struct channels_t{
 
 } channels;
 
+userlist* init_userlist(){
+    userlist* UL;
+    UL = (userlist*) malloc(sizeof *UL);
+    UL->current_num = 0;
+    UL->max_num = MAXNUM;
+
+    UL->user_list = (user*) malloc(sizeof *UL->user_list);
+    for(int i = 0; i < MAXNUM; i++){
+    }
+
+    return UL;
+}
+
+void free_userlist(userlist* UL){
+    free(UL->user_list);
+    free(UL);
+}
 
 int serv(char* port){
     struct addrinfo hints, *gai, *ai;
