@@ -84,16 +84,11 @@ int serv(char* port){
             continue;
         }
 
-        while(1){
+        
         if (listen(sfd, 8) < 0){
             perror("listen");
             continue;
         }
-        if ((acc = (accept(sfd, ai->ai_addr, &ai->ai_addrlen))) < 0) {
-            perror("accept");
-            exit(EXIT_FAILURE);
-        }
-        printf("Connected!\n");}
         break;
     }
     
@@ -102,11 +97,7 @@ int serv(char* port){
         exit(EXIT_FAILURE);
     }
     freeaddrinfo(gai);
-    close(sfd);
-    return acc;
-    
-    
-    
+    return sfd;
 }
 
 
@@ -116,11 +107,14 @@ int main(int argc, char** argv){
     int ret;
     
     uint8_t buf[1024];
-    struct pollfd pfd[30];
+    struct pollfd pfd[31];
     if(argc == 1 || argc > 3){
         fprintf(stderr, "Usage: ./nc [HOST] PORT\n");
         exit(EXIT_FAILURE);
     }
+    pfd[0].fd = serv(argv[1]);
+    pfd[0].events = POLLIN;
+    for(;;){
 
     if (argc == 2){
        sfd = serv(argv[1]); 
