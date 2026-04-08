@@ -88,7 +88,7 @@ int serv(char* port){
         if (listen(sfd, 8) < 0){
             perror("listen");
             continue;
-        }
+        }        
         break;
     }
     
@@ -105,7 +105,7 @@ int main(int argc, char** argv){
     int sfd; 
     int len;
     int ret;
-    
+    int userfd;
     uint8_t buf[1024];
     struct pollfd pfd[31];
     if(argc == 1 || argc > 3){
@@ -115,33 +115,10 @@ int main(int argc, char** argv){
     pfd[0].fd = serv(argv[1]);
     pfd[0].events = POLLIN;
     for(;;){
-
-    if (argc == 2){
-       sfd = serv(argv[1]); 
+        
     }
     
     
-    
-    // for (;;){
-        
-    //     // if ((ret = poll(pfd, 2, 20000)) < 0){
-    //     //     perror("poll");
-    //     // }
-
-    //     if (ret > 0){
-    //         bzero(&buf, sizeof(buf));
-            
-    //         if (pfd[0].revents & POLLIN){
-    //             if ((len = recv(sfd, buf, sizeof(buf), 0)) < 0){
-    //                 perror("recv");
-    //                 exit(EXIT_FAILURE);
-    //             }
-    //             fprintf(stderr, (char*) buf, len);
-                
-                
-    //         }
-    //     }
-    // }
         
     return 0;
 }
