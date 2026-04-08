@@ -12,11 +12,17 @@
 
 typedef struct user_t{
     int sfd;
-    char* name;
+    char name[16];
 } user;
 
+typedef struct userlist_t{
+    int max_num;
+    int current_num;
+    user* user_list;
+} userlist;
+
 typedef struct channel_t{
-    char* name;
+    char name[16];
     int member_count;
     user* member_list;
 } channel;
