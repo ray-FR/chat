@@ -1,6 +1,8 @@
 import socket
 import sys
-import select
+from tkinter import ttk
+from tkinter import *
+from tkinter.ttk import *
 
 err_dict = {
     "ERR! 00\n" : "Erreur côté serveur",
@@ -11,9 +13,9 @@ err_dict = {
     "ERR! 11\n" : "Erreur côté serveur",
     "ERR! 12\n" : "Erreur côté serveur",
     "ERR! 20\n" : "Erreur côté serveur",
-    "ERR! 21\n" : "Erreur côté serveur",
-     
+    "ERR! 21\n" : "Erreur côté serveur",  
 }
+
 
 if len(sys.argv) != 3:
     print(f"Error on arg length, expected 3 args, only have {len(sys.argv)}")
@@ -23,8 +25,10 @@ sock = socket.socket()
 sock.connect((socket.gethostbyname(str(sys.argv[1])), int(sys.argv[2])))
 print("Connected")
 
+root = Tk()
 while True:
-    
+
+
     user_response = str(input())
     try: 
         sock.send((user_response + "\n").encode())
@@ -43,4 +47,10 @@ while True:
         print(f"{err_dict[decoded_serv_response]}, Error code: {decoded_serv_response}")
     else:
         print(decoded_serv_response)
+
+
+    root.mainloop()
+
+
+    
 
