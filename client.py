@@ -35,14 +35,22 @@ def send_data_name(event):
 
     
 def response():
-    global sent_response
-    if sent_response == 1:  
-        serv_response = sock.recv(1024)
-        
-        if not serv_response:
-            print("Cut by the host")
-            sys.exit(1)
+    serv_response = bytes()
+    if sent_response == 0:  
+        try:
+            serv_response = sock.recv(1024)
+            if not serv_response:
+                print("Cut by the host")
+                sys.exit(1)
+            
+        except BlockingIOError:
+            
+            root.after(500, response)
+            return
+            
 
+        
+        
         decoded_serv_response = serv_response.decode()
         if ((decoded_serv_response)) in err_dict.keys():
             print(f"{err_dict[decoded_serv_response]}, Error code: {decoded_serv_response}")
