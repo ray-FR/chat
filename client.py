@@ -63,7 +63,9 @@ def response():
 
 
 root = Tk()
-root.geometry('500x500')
+root.geometry('960x480')
+root.title("Chat R.I")
+
 str_entry = StringVar()
 
 entry_label = ttk.Label(root, text="Votre nom?", )
