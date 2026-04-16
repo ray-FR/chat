@@ -24,6 +24,7 @@ if len(sys.argv) != 3:
 
 sock = socket.socket()
 sock.connect((socket.gethostbyname(str(sys.argv[1])), int(sys.argv[2])))
+sock.setblocking(False)
 print("Connected")
 
 def send_data_name(event):
