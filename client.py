@@ -24,14 +24,13 @@ if len(sys.argv) != 3:
 sock = socket.socket()
 sock.connect((socket.gethostbyname(str(sys.argv[1])), int(sys.argv[2])))
 sock.setblocking(False)
-print("Connected")
+print("Connected\n")
 
 def on_return(event):
     global type_of_command
 
     if type_of_command == 1:
         sock.send((f"NAME {str_entry.get()}\n").encode())
-        entry_label.pack_forget()
         
 
     
@@ -71,12 +70,16 @@ str_entry = StringVar()
 entry_name = ttk.Entry(root, textvariable=str_entry, width=(root.winfo_width() - 150))
 entry_name.bind('<Return>', on_return)
 
-entry_label.pack()
-entry_name.pack()
+
+channels_name_scrollbar = ttk.Scrollbar(root)
+channels_name = ttk.Treeview(root, show="tree", yscrollcommand=channels_name_scrollbar.set)
+channels_name.insert('', 'end', text="testing")
+channels_name_scrollbar.config(command=channels_name.yview)
+
+
+entry_name.pack(side="bottom", pady=(10, 10))
+channels_name.pack(side="left",fill="y", padx=0)
+channels_name_scrollbar.pack(side="left", fill="y")
 
 response()
 root.mainloop()
-
-
-    
-
