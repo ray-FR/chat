@@ -15,6 +15,7 @@ err_dict = {
     "ERR! 20\n" : "Message invalide",
     "ERR! 21\n" : "Impossible de relayer le message",  
 }
+sent_response = 0
 
 
 if len(sys.argv) != 3:
