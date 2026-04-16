@@ -15,8 +15,7 @@ err_dict = {
     "ERR! 20\n" : "Message invalide",
     "ERR! 21\n" : "Impossible de relayer le message",  
 }
-sent_response = 0
-
+type_of_command = 1
 
 if len(sys.argv) != 3:
     print(f"Error on arg length, expected 3 args, only have {len(sys.argv)}")
@@ -27,11 +26,13 @@ sock.connect((socket.gethostbyname(str(sys.argv[1])), int(sys.argv[2])))
 sock.setblocking(False)
 print("Connected")
 
-def send_data_name(event):
-    global sent_response
-    sock.send((f"NAME {str_entry.get()}\n").encode())
-    entry_label.pack_forget()
-    sent_response = 1
+def on_return(event):
+    global type_of_command
+
+    if type_of_command == 1:
+        sock.send((f"NAME {str_entry.get()}\n").encode())
+        entry_label.pack_forget()
+        
 
     
 def response():
@@ -67,7 +68,7 @@ str_entry = StringVar()
 
 entry_label = ttk.Label(root, text="Votre nom?", )
 entry_name = ttk.Entry(root, textvariable=str_entry)
-entry_name.bind('<Return>', send_data_name)
+entry_name.bind('<Return>', on_return)
 
 entry_label.pack()
 entry_name.pack()
