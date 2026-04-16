@@ -6,14 +6,14 @@ from tkinter.ttk import *
 
 err_dict = {
     "ERR! 00\n" : "Erreur côté serveur",
-    "ERR! 01\n" : "Erreur côté serveur",
-    "ERR! 02\n" : "Erreur côté serveur",
-    "ERR! 03\n" : "Erreur côté serveur",
-    "ERR! 10\n" : "Erreur côté serveur",
-    "ERR! 11\n" : "Erreur côté serveur",
-    "ERR! 12\n" : "Erreur côté serveur",
-    "ERR! 20\n" : "Erreur côté serveur",
-    "ERR! 21\n" : "Erreur côté serveur",  
+    "ERR! 01\n" : "Commande client invalide",
+    "ERR! 02\n" : "Identification nécessaire",
+    "ERR! 03\n" : "Le client n'est pas membre du canal",
+    "ERR! 10\n" : "Nom Invalide",
+    "ERR! 11\n" : "Nom inexistant",
+    "ERR! 12\n" : "Nom indisponible",
+    "ERR! 20\n" : "Message invalide",
+    "ERR! 21\n" : "Impossible de relayer le message",  
 }
 
 
