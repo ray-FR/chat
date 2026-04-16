@@ -25,31 +25,45 @@ sock = socket.socket()
 sock.connect((socket.gethostbyname(str(sys.argv[1])), int(sys.argv[2])))
 print("Connected")
 
+def send_data_name(event):
+    global sent_response
+    sock.send((f"NAME {str_entry.get()}\n").encode())
+    entry_label.pack_forget()
+    sent_response = 1
+
+    
+def response():
+    global sent_response
+    if sent_response == 1:  
+        serv_response = sock.recv(1024)
+        
+        if not serv_response:
+            print("Cut by the host")
+            sys.exit(1)
+
+        decoded_serv_response = serv_response.decode()
+        if ((decoded_serv_response)) in err_dict.keys():
+            print(f"{err_dict[decoded_serv_response]}, Error code: {decoded_serv_response}")
+        else:
+            print(decoded_serv_response)
+        sent_response = 0
+    root.after(500, response)
+
+
+
 root = Tk()
-while True:
+root.geometry('500x500')
+str_entry = StringVar()
 
+entry_label = ttk.Label(root, text="Votre nom?", )
+entry_name = ttk.Entry(root, textvariable=str_entry)
+entry_name.bind('<Return>', send_data_name)
 
-    user_response = str(input())
-    try: 
-        sock.send((user_response + "\n").encode())
-    except socket.error as err:
-        print(f"error {err}")
-        sys.exit(1)
+entry_label.pack()
+entry_name.pack()
 
-    
-    serv_response = sock.recv(1024)
-    
-    if not serv_response:
-        print("Cut by the host")
-        sys.exit(1)
-    decoded_serv_response = serv_response.decode()
-    if ((decoded_serv_response)) in err_dict:
-        print(f"{err_dict[decoded_serv_response]}, Error code: {decoded_serv_response}")
-    else:
-        print(decoded_serv_response)
-
-
-    root.mainloop()
+response()
+root.mainloop()
 
 
     
