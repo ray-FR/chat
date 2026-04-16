@@ -68,8 +68,7 @@ root.title("Chat R.I")
 
 str_entry = StringVar()
 
-entry_label = ttk.Label(root, text="Votre nom?", )
-entry_name = ttk.Entry(root, textvariable=str_entry)
+entry_name = ttk.Entry(root, textvariable=str_entry, width=(root.winfo_width() - 150))
 entry_name.bind('<Return>', on_return)
 
 entry_label.pack()
