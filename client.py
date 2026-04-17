@@ -73,13 +73,19 @@ entry_name.bind('<Return>', on_return)
 
 channels_name_scrollbar = ttk.Scrollbar(root)
 channels_name = ttk.Treeview(root, show="tree", yscrollcommand=channels_name_scrollbar.set)
-channels_name.insert('', 'end', text="testing")
+channels_name.insert('', 'end', text="---")
 channels_name_scrollbar.config(command=channels_name.yview)
+
+discussion_scrollbar = ttk.Scrollbar(root)
+discussion = ttk.Treeview(root, show="tree", yscrollcommand=discussion_scrollbar.set, selectmode='none')
+discussion_scrollbar.config(command=discussion.yview)
 
 
 entry_name.pack(side="bottom", pady=(10, 10))
 channels_name.pack(side="left",fill="y", padx=0)
 channels_name_scrollbar.pack(side="left", fill="y")
+discussion.pack(side="left", expand=YES, fill="both")
+discussion_scrollbar.pack(side="left", fill="y")
 
 response()
 root.mainloop()
