@@ -104,10 +104,26 @@ participants_scrollbar.config(command=participants.yview)
 
 
 entry_name.pack(side="bottom", pady=(10, 10))
+
 channels_name.pack(side="left",fill="y", padx=0)
 channels_name_scrollbar.pack(side="left", fill="y")
+
 discussion.pack(side="left", expand=YES, fill="both")
 discussion_scrollbar.pack(side="left", fill="y")
+
+canaux_frame_top.pack(side="top", fill="x")
+canaux_label.pack(in_=canaux_frame_top, side="left", padx=(10))
+canaux_button.pack(in_=canaux_frame_top, side="right", padx=(0, 20))
+canaux_frame_main.pack(side="top", fill="both")
+canaux.pack(in_=canaux_frame_main, side="left", fill="y", expand=YES)
+canaux_scrollbar.pack(in_=canaux_frame_main, side="left", fill="y")
+
+participants_label.pack(side="top", fill="both", padx=10)
+participants_frame.pack(side="top", fill="both")
+participants.pack(in_=participants_frame ,side="left", fill="y", expand=YES)
+participants_scrollbar.pack(in_=participants_frame ,side="left", fill="y")
+
+
 
 response()
 root.mainloop()
