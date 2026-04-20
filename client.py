@@ -129,10 +129,17 @@ def response():
     if "TALK" in decoded_serv_response[0:5]:
         split_message = decoded_serv_response.split(" ")
         messages_history[split_message[1]][0].append([f"{split_message[2]}: {' '.join(split_message[3:])}"])
-        print(messages_history[split_message[1]][0])
         selected_channel = current_channellist.focus()
         if current_channellist.item(selected_channel)["text"] == split_message[1]:
             fill_discussion(None)
+
+    if "PRIV" in decoded_serv_response[0:5]:
+        split_message = decoded_serv_response.split(" ")
+        messages_history[split_message[1]][0].append([f"{split_message[1]}: {' '.join(split_message[2:])}"])
+        selected_channel = current_channellist.focus()
+        if current_channellist.item(selected_channel)["text"] == split_message[1]:
+            fill_discussion(None)
+
 
     if "MEMB" in decoded_serv_response[0:5]:
         members_args = decoded_serv_response.split("\n")
