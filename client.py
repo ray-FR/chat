@@ -64,7 +64,7 @@ def on_action(e, type):
         str_interaction_entry.set("")
 
     if type == 5:
-        sock.send(("PING").encode())
+        sock.send(("PING\n").encode())
         sleep(0.5)
         response()
 
@@ -96,7 +96,6 @@ def popup_error(err):
 messages_history = {"---": [[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux."]]}
 
 def response():
-    #TODO: fix pong not being received
     global GLOBAL_ERR_IND
     global time_to_compare
 
