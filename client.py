@@ -28,7 +28,10 @@ print("Connected\n")
 def on_action(e, type):
     
     if type == 1:
-        sock.send((f"NAME {str_entry.get()}\n").encode())
+        sock.send((f"NAME {str_name_entry.get()}\n").encode())
+        name_toplevel.destroy()
+        name.config(text=str_name_entry.get())
+        str_name_entry.set("")
 
     if type == 2:
         sock.send(("LIST\n").encode())
