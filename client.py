@@ -33,8 +33,17 @@ def on_action(e, type):
     if type == 2:
         sock.send(("LIST\n").encode())
 
-
-        
+def popup_name():        
+    name_toplevel = Toplevel(root)
+    name_toplevel.title("Votre nom")
+    name_toplevel.grab_set()
+    name_toplevel.geometry('400x160')
+    name_toplevel_label = ttk.Label(name_toplevel, text="Quel est votre nom?")
+    name_toplevel_entry = ttk.Entry(name_toplevel, textvariable=str_name_entry)
+    name_toplevel_entry.bind('<Return>', lambda event: on_action(event, 1))
+    name_toplevel_label.pack(pady=(30, 5))
+    name_toplevel_entry.pack()
+    root.wait_window(name_toplevel)
 
     
 def response():
@@ -77,14 +86,25 @@ root = Tk()
 root.geometry('960x480')
 root.title("Chat R.I")
 
-str_entry = StringVar()
-
+str_interaction_entry = StringVar()
+str_name_entry = StringVar()
 
 
 interaction_frame = ttk.Frame(root)
-name = ttk.Button(root, text="unnamed")
-interaction_entry = ttk.Entry(root, textvariable=str_entry, width=(root.winfo_width() - 150))
+name = ttk.Button(root, text="unnamed", command=popup_name)
+interaction_entry = ttk.Entry(root, textvariable=str_interaction_entry, width=(root.winfo_width() - 150))
 interaction_entry.bind('<Return>', lambda event: on_action(event, 1))
+
+name_toplevel = Toplevel(root)
+name_toplevel.title("Votre nom")
+name_toplevel.grab_set()
+name_toplevel.geometry('400x160')
+name_toplevel_label = ttk.Label(name_toplevel, text="Quel est votre nom?")
+name_toplevel_entry = ttk.Entry(name_toplevel, textvariable=str_name_entry)
+name_toplevel_entry.bind('<Return>', lambda event: on_action(event, 1))
+name_toplevel_label.pack(pady=(30, 5))
+name_toplevel_entry.pack()
+root.wait_window(name_toplevel)
 
 
 channels_name_scrollbar = ttk.Scrollbar(root)
