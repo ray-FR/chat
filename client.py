@@ -60,8 +60,15 @@ def on_action(e, type):
 
     if type == 4:
         selected_channel = current_channellist.focus()
-        sock.send((f"TALK {current_channellist.item(selected_channel)["text"]} {str_interaction_entry.get()}\n").encode())
-        str_interaction_entry.set("")
+        if current_channellist.item(selected_channel)["text"] in messages_history.keys():
+            if messages_history[current_channellist.item(selected_channel)["text"]][1] == 1:
+                sock.send((f"TALK {current_channellist.item(selected_channel)["text"]} {str_interaction_entry.get()}\n").encode())
+            else:
+                sock.send((f"PRIV {current_channellist.item(selected_channel)["text"]} {str_interaction_entry.get()}\n").encode())
+                messages_history[(current_channellist.item(selected_channel)["text"])][0].append([f"{name['text']}: {str_interaction_entry.get()}"])
+                fill_discussion(None)
+
+            str_interaction_entry.set("")
 
     if type == 5:
         sock.send(("PING\n").encode())
