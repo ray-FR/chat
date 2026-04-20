@@ -15,6 +15,7 @@ err_dict = {
     "ERR! 20\n" : "Message invalide",
     "ERR! 21\n" : "Impossible de relayer le message",  
 }
+GLOBAL_ERR_IND = 0
 
 if len(sys.argv) != 3:
     print(f"Error on arg length, expected 3 args, only have {len(sys.argv)}")
@@ -71,6 +72,8 @@ def popup_error(err):
     root.wait_window(error_toplevel)
 
 def response():
+    global GLOBAL_ERR_IND
+
     serv_response = bytes()
     
     try:
@@ -98,7 +101,8 @@ def response():
 
 
     if ((decoded_serv_response)) in err_dict.keys():
-        print(f"{err_dict[decoded_serv_response]}, Error code: {decoded_serv_response}")
+        GLOBAL_ERR_IND = 1
+        popup_error(f"{err_dict[decoded_serv_response]}, code d'erreur: {decoded_serv_response}")
     else:
         print(decoded_serv_response)
     
