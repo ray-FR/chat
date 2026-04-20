@@ -36,6 +36,10 @@ def on_action(e, type):
     if type == 2:
         sock.send(("LIST\n").encode())
 
+    if type == 3:
+        selected_channel = channels.focus()
+        sock.send((f"JOIN {channels.item(selected_channel)["text"]}\n").encode())
+
 def popup_name():        
     name_toplevel = Toplevel(root)
     name_toplevel.title("Votre nom")
@@ -83,7 +87,13 @@ def response():
     
     root.after(500, response)
 
-
+def select_channel(event):
+    selected_channel = channels.focus()
+    for channel in current_channellist.get_children():
+        if current_channellist.item(channel)["text"] == channels.item(selected_channel)["text"]:
+            return
+    current_channellist.insert('', 'end', text=channels.item(selected_channel)["text"])
+    on_action(None, 3)
 
 root = Tk()
 root.geometry('960x480')
