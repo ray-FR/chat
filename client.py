@@ -93,7 +93,8 @@ def popup_error(err):
     error_toplevel_button.pack()
     root.wait_window(error_toplevel)
 
-messages_history = {"---": [[[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux à droite!"]], 0]}
+messages_history = {"Bienvenue--------": [[[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux à droite!"]], 0]}
+participants_history = []
 
 def response():
     global GLOBAL_ERR_IND
@@ -132,6 +133,16 @@ def response():
         selected_channel = current_channellist.focus()
         if current_channellist.item(selected_channel)["text"] == split_message[1]:
             fill_discussion(None)
+
+    if "MEMB" in decoded_serv_response[0:5]:
+        members_args = decoded_serv_response.split("\n")
+        
+        for i in range(1, len(members_args) - 1):
+            if members_args[i] in participants_history or name['text'] == members_args[i]:
+                continue
+            participants_history.append(members_args[i])
+            participants.insert('', 'end', text=members_args[i])
+
 
 
 
@@ -180,7 +191,7 @@ root.wait_window(name_toplevel)
 
 current_channellist_scrollbar = ttk.Scrollbar(root)
 current_channellist = ttk.Treeview(root, show="tree", yscrollcommand=current_channellist_scrollbar.set)
-current_channellist.insert('', 'end', text="---")
+current_channellist.insert('', 'end', text="Bienvenue--------")
 current_channellist.bind("<Double-Button-1>", fill_discussion)
 current_channellist_scrollbar.config(command=current_channellist.yview)
 
