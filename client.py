@@ -67,9 +67,10 @@ str_entry = StringVar()
 
 
 
-
-entry_name = ttk.Entry(root, textvariable=str_entry, width=(root.winfo_width() - 150))
-entry_name.bind('<Return>', on_return)
+interaction_frame = ttk.Frame(root)
+name = ttk.Button(root, text="unnamed")
+interaction_entry = ttk.Entry(root, textvariable=str_entry, width=(root.winfo_width() - 150))
+interaction_entry.bind('<Return>', lambda event: on_action(event, 1))
 
 
 channels_name_scrollbar = ttk.Scrollbar(root)
@@ -100,6 +101,9 @@ participants = ttk.Treeview(root, show="tree", yscrollcommand=participants_scrol
 participants_scrollbar.config(command=participants.yview)
 
 
+interaction_frame.pack(side="bottom", pady=10)
+name.pack(in_= interaction_frame, side="left", padx= 20)
+interaction_entry.pack(in_= interaction_frame ,side="left")
 
 entry_name.pack(side="bottom", pady=(10, 10))
 
