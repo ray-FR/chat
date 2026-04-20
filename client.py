@@ -110,10 +110,10 @@ name_toplevel_entry.pack()
 root.wait_window(name_toplevel)
 
 
-channels_name_scrollbar = ttk.Scrollbar(root)
-channels_name = ttk.Treeview(root, show="tree", yscrollcommand=channels_name_scrollbar.set)
-channels_name.insert('', 'end', text="---")
-channels_name_scrollbar.config(command=channels_name.yview)
+current_channellist_scrollbar = ttk.Scrollbar(root)
+current_channellist = ttk.Treeview(root, show="tree", yscrollcommand=current_channellist_scrollbar.set)
+current_channellist.insert('', 'end', text="---")
+current_channellist_scrollbar.config(command=current_channellist.yview)
 
 
 discussion_scrollbar = ttk.Scrollbar(root)
@@ -121,14 +121,15 @@ discussion = ttk.Treeview(root, show="tree", yscrollcommand=discussion_scrollbar
 discussion_scrollbar.config(command=discussion.yview)
 
 
-canaux_frame_top = ttk.Frame(root)
-canaux_label = ttk.Label(root, text="Canaux")
-canaux_button = ttk.Button(root, text="⇅", width=0, command=(lambda: on_action(None, 2)))
+channels_frame_top = ttk.Frame(root)
+channels_label = ttk.Label(root, text="Canaux")
+channels_button = ttk.Button(root, text="⇅", width=0, command=(lambda: on_action(None, 2)))
 
-canaux_frame_main = ttk.Frame(root)
-canaux_scrollbar = ttk.Scrollbar(root)
-canaux = ttk.Treeview(root, show="tree", yscrollcommand=canaux_scrollbar.set)
-canaux_scrollbar.config(command=canaux.yview)
+channels_frame_main = ttk.Frame(root)
+channels_scrollbar = ttk.Scrollbar(root)
+channels = ttk.Treeview(root, show="tree", yscrollcommand=channels_scrollbar.set)
+channels.bind("<Double-Button-1>", select_channel)
+channels_scrollbar.config(command=channels.yview)
 
 
 participants_label = ttk.Label(root, text="Participants")
@@ -143,18 +144,18 @@ name.pack(in_= interaction_frame, side="left", padx= 20)
 interaction_entry.pack(in_= interaction_frame ,side="left")
 
 
-channels_name.pack(side="left",fill="y", padx=0)
-channels_name_scrollbar.pack(side="left", fill="y")
+current_channellist.pack(side="left",fill="y", padx=0)
+current_channellist_scrollbar.pack(side="left", fill="y")
 
 discussion.pack(side="left", expand=YES, fill="both")
 discussion_scrollbar.pack(side="left", fill="y")
 
-canaux_frame_top.pack(side="top", fill="x")
-canaux_label.pack(in_=canaux_frame_top, side="left", padx=(10))
-canaux_button.pack(in_=canaux_frame_top, side="right", padx=(0, 20))
-canaux_frame_main.pack(side="top", fill="both")
-canaux.pack(in_=canaux_frame_main, side="left", fill="y", expand=YES)
-canaux_scrollbar.pack(in_=canaux_frame_main, side="left", fill="y")
+channels_frame_top.pack(side="top", fill="x")
+channels_label.pack(in_=channels_frame_top, side="left", padx=(10))
+channels_button.pack(in_=channels_frame_top, side="right", padx=(0, 20))
+channels_frame_main.pack(side="top", fill="both")
+channels.pack(in_=channels_frame_main, side="left", fill="y", expand=YES)
+channels_scrollbar.pack(in_=channels_frame_main, side="left", fill="y")
 
 participants_label.pack(side="top", fill="both", padx=10)
 participants_frame.pack(side="top", fill="both")
