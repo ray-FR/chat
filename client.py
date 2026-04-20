@@ -69,10 +69,10 @@ def response():
     decoded_serv_response = serv_response.decode()
 
     if "LIST" in decoded_serv_response[0:5]:
-        canaux.delete(*canaux.get_children())
-        canaux_args = decoded_serv_response.split("\n")
-        for i in range(1, len(canaux_args) - 1):
-            canaux.insert('', 'end', text=canaux_args[i])
+        channels.delete(*channels.get_children())
+        channels_args = decoded_serv_response.split("\n")
+        for i in range(1, len(channels_args) - 1):
+            channels.insert('', 'end', text=channels_args[i])
 
 
 
