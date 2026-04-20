@@ -164,6 +164,14 @@ def select_channel(event):
     messages_history[channels.item(selected_channel)["text"]] = [[], 1]
     on_action(None, 3)
 
+def select_member(event):
+    selected_member = participants.focus()
+    for participant in current_channellist.get_children():
+        if current_channellist.item(participant)["text"] == participants.item(selected_member)["text"]:
+            return
+    current_channellist.insert('', 'end', text=participants.item(selected_member)["text"])
+    messages_history[participants.item(selected_member)["text"]] = [[], 2]
+
 def fill_discussion(event):
     discussion.delete(*discussion.get_children())
     selected_channel = current_channellist.focus()
@@ -216,6 +224,8 @@ participants_label = ttk.Label(root, text="Participants")
 participants_frame = ttk.Frame(root)
 participants_scrollbar = ttk.Scrollbar(root)
 participants = ttk.Treeview(root, show="tree", yscrollcommand=participants_scrollbar.set)
+participants.bind("<Double-Button-1>", select_member)
+
 participants_scrollbar.config(command=participants.yview)
 
 
