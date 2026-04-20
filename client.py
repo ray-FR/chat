@@ -29,6 +29,11 @@ def on_action(e, type):
     
     if type == 1:
         sock.send((f"NAME {str_entry.get()}\n").encode())
+
+    if type == 2:
+        sock.send(("LIST\n").encode())
+
+
         
 
     
@@ -50,6 +55,15 @@ def response():
     
     
     decoded_serv_response = serv_response.decode()
+
+    if "LIST" in decoded_serv_response[0:5]:
+        canaux.delete(*canaux.get_children())
+        canaux_args = decoded_serv_response.split("\n")
+        for i in range(1, len(canaux_args) - 1):
+            canaux.insert('', 'end', text=canaux_args[i])
+
+
+
     if ((decoded_serv_response)) in err_dict.keys():
         print(f"{err_dict[decoded_serv_response]}, Error code: {decoded_serv_response}")
     else:
