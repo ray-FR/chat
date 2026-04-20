@@ -15,7 +15,6 @@ err_dict = {
     "ERR! 20\n" : "Message invalide",
     "ERR! 21\n" : "Impossible de relayer le message",  
 }
-type_of_command = 1
 
 if len(sys.argv) != 3:
     print(f"Error on arg length, expected 3 args, only have {len(sys.argv)}")
@@ -26,10 +25,9 @@ sock.connect((socket.gethostbyname(str(sys.argv[1])), int(sys.argv[2])))
 sock.setblocking(False)
 print("Connected\n")
 
-def on_return(event):
-    global type_of_command
-
-    if type_of_command == 1:
+def on_action(e, type):
+    
+    if type == 1:
         sock.send((f"NAME {str_entry.get()}\n").encode())
         
 
