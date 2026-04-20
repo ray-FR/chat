@@ -93,7 +93,7 @@ def popup_error(err):
     error_toplevel_button.pack()
     root.wait_window(error_toplevel)
 
-messages_history = {"---": [[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux."]]}
+messages_history = {"---": [[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux à droite!"]]}
 
 def response():
     global GLOBAL_ERR_IND
@@ -125,6 +125,13 @@ def response():
         for i in range(1, len(channels_args) - 1):
             channels.insert('', 'end', text=channels_args[i])
 
+    if "TALK" in decoded_serv_response[0:5]:
+        split_message = decoded_serv_response.split(" ")
+        messages_history[split_message[1]].append([f"{split_message[2]}: {' '.join(split_message[3:])}"])
+        selected_channel = current_channellist.focus()
+        if current_channellist.item(selected_channel)["text"] == split_message[1]:
+            fill_discussion(None)
+
 
 
     if ((decoded_serv_response)) in err_dict.keys():
@@ -142,6 +149,7 @@ def select_channel(event):
         if current_channellist.item(channel)["text"] == channels.item(selected_channel)["text"]:
             return
     current_channellist.insert('', 'end', text=channels.item(selected_channel)["text"])
+    messages_history[channels.item(selected_channel)["text"]] = []
     on_action(None, 3)
 
 def fill_discussion(event):
