@@ -61,6 +61,11 @@ def on_action(e, type):
         sock.send((f"TALK {current_channellist.item(selected_channel)["text"]} {str_interaction_entry.get()}\n").encode())
         str_interaction_entry.set("")
 
+    if type == 5:
+        sock.send(("PING").encode())
+        sleep(0.5)
+        response()
+
 def popup_name():        
     name_toplevel = Toplevel(root)
     name_toplevel.title("Votre nom")
@@ -99,11 +104,15 @@ def response():
             sys.exit(1)
         
     except BlockingIOError:
+        if int(time() - time_to_compare) == 15:
+            print("PING")
+            time_to_compare = time()
+            on_action(None, 5)
+            
         
         root.after(500, response)
         return
         
-
     decoded_serv_response = serv_response.decode()
 
     if "LIST" in decoded_serv_response[0:5]:
@@ -119,7 +128,8 @@ def response():
         popup_error(f"{err_dict[decoded_serv_response]}, code d'erreur: {decoded_serv_response}")
     else:
         print(decoded_serv_response)
-    
+
+    time_to_compare = time()  
     root.after(500, response)
 
 def select_channel(event):
@@ -135,6 +145,8 @@ def fill_discussion(event):
     selected_channel = current_channellist.focus()
     for msg in messages_history[current_channellist.item(selected_channel)["text"]]:
         discussion.insert('', 'end', text=msg[0])
+
+time_to_compare = time()
 
 interaction_frame = ttk.Frame(root)
 name = ttk.Button(root, text="unnamed", command=popup_name)
