@@ -3,6 +3,7 @@ import sys
 from tkinter import ttk
 from tkinter import *
 from tkinter.ttk import *
+from time import *
 
 err_dict = {
     "ERR! 00\n" : "Erreur côté serveur",
@@ -27,12 +28,18 @@ sock.setblocking(False)
 print("Connected\n")
 
 def on_action(e, type):
-    
+    global GLOBAL_ERR_IND
+
     if type == 1:
         sock.send((f"NAME {str_name_entry.get()}\n").encode())
-        name_toplevel.destroy()
-        name.config(text=str_name_entry.get())
+        sleep(0.5)
+        response()
+        
+        if GLOBAL_ERR_IND == 0:
+            name_toplevel.destroy()
+            name.config(text=str_name_entry.get())
         str_name_entry.set("")
+        GLOBAL_ERR_IND = 0
 
     if type == 2:
         sock.send(("LIST\n").encode())
