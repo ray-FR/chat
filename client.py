@@ -40,6 +40,11 @@ def on_action(e, type):
         selected_channel = channels.focus()
         sock.send((f"JOIN {channels.item(selected_channel)["text"]}\n").encode())
 
+    if type == 4:
+        selected_channel = current_channellist.focus()
+        sock.send((f"TALK {current_channellist.item(selected_channel)["text"]} {str_interaction_entry.get()}\n").encode())
+        str_interaction_entry.set("")
+
 def popup_name():        
     name_toplevel = Toplevel(root)
     name_toplevel.title("Votre nom")
@@ -106,7 +111,7 @@ str_name_entry = StringVar()
 interaction_frame = ttk.Frame(root)
 name = ttk.Button(root, text="unnamed", command=popup_name)
 interaction_entry = ttk.Entry(root, textvariable=str_interaction_entry, width=(root.winfo_width() - 150))
-interaction_entry.bind('<Return>', lambda event: on_action(event, 1))
+interaction_entry.bind('<Return>', lambda event: on_action(event, 4))
 
 name_toplevel = Toplevel(root)
 name_toplevel.title("Votre nom")
