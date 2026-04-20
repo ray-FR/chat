@@ -86,18 +86,18 @@ discussion_scrollbar.config(command=discussion.yview)
 
 canaux_frame_top = ttk.Frame(root)
 canaux_label = ttk.Label(root, text="Canaux")
-canaux_button = ttk.Button(root, text="⇅", width=0)
+canaux_button = ttk.Button(root, text="⇅", width=0, command=(lambda: on_action(None, 2)))
 
 canaux_frame_main = ttk.Frame(root)
 canaux_scrollbar = ttk.Scrollbar(root)
-canaux = ttk.Treeview(root, show="tree", yscrollcommand=canaux_scrollbar.set, selectmode='none')
+canaux = ttk.Treeview(root, show="tree", yscrollcommand=canaux_scrollbar.set)
 canaux_scrollbar.config(command=canaux.yview)
 
 
 participants_label = ttk.Label(root, text="Participants")
 participants_frame = ttk.Frame(root)
 participants_scrollbar = ttk.Scrollbar(root)
-participants = ttk.Treeview(root, show="tree", yscrollcommand=participants_scrollbar.set, selectmode='none')
+participants = ttk.Treeview(root, show="tree", yscrollcommand=participants_scrollbar.set)
 participants_scrollbar.config(command=participants.yview)
 
 
@@ -105,7 +105,6 @@ interaction_frame.pack(side="bottom", pady=10)
 name.pack(in_= interaction_frame, side="left", padx= 20)
 interaction_entry.pack(in_= interaction_frame ,side="left")
 
-entry_name.pack(side="bottom", pady=(10, 10))
 
 channels_name.pack(side="left",fill="y", padx=0)
 channels_name_scrollbar.pack(side="left", fill="y")
