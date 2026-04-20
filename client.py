@@ -31,6 +31,8 @@ root = Tk()
 root.geometry('1060x480')
 root.title("Chat R.I")
 
+style = ttk.Style()
+style.configure("Diss.Treeview", font=("Arial", 11))
 
 str_interaction_entry = StringVar()
 str_name_entry = StringVar()
@@ -92,8 +94,11 @@ def popup_error(err):
     root.wait_window(error_toplevel)
 
 messages_history = {"---": [[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux."]]}
+
 def response():
+    #TODO: fix pong not being received
     global GLOBAL_ERR_IND
+    global time_to_compare
 
     serv_response = bytes()
     
@@ -173,7 +178,7 @@ current_channellist_scrollbar.config(command=current_channellist.yview)
 
 
 discussion_scrollbar = ttk.Scrollbar(root)
-discussion = ttk.Treeview(root, show="tree", yscrollcommand=discussion_scrollbar.set, selectmode='none')
+discussion = ttk.Treeview(root, show="tree", yscrollcommand=discussion_scrollbar.set, selectmode='none', style="Diss.Treeview")
 discussion_scrollbar.config(command=discussion.yview)
 
 
