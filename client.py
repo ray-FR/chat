@@ -57,7 +57,19 @@ def popup_name():
     name_toplevel_entry.pack()
     root.wait_window(name_toplevel)
 
-    
+def popup_error(err):
+    print(err)
+    error_toplevel = Toplevel(root)
+    error_toplevel.title("ERREUR!")
+    error_toplevel.grab_set()
+    error_toplevel.geometry('350x140')
+    error_toplevel_label = ttk.Label(error_toplevel, text=err)
+    error_toplevel_button = ttk.Button(error_toplevel, text="OK", command=error_toplevel.destroy)
+    error_toplevel.bind('<Return>', lambda event: error_toplevel.destroy())
+    error_toplevel_label.pack(pady=(15, 5))
+    error_toplevel_button.pack()
+    root.wait_window(error_toplevel)
+
 def response():
     serv_response = bytes()
     
