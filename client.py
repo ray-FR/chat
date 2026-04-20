@@ -27,6 +27,14 @@ sock.connect((socket.gethostbyname(str(sys.argv[1])), int(sys.argv[2])))
 sock.setblocking(False)
 print("Connected\n")
 
+root = Tk()
+root.geometry('1060x480')
+root.title("Chat R.I")
+
+
+str_interaction_entry = StringVar()
+str_name_entry = StringVar()
+
 def on_action(e, type):
     global GLOBAL_ERR_IND
 
@@ -78,6 +86,7 @@ def popup_error(err):
     error_toplevel_button.pack()
     root.wait_window(error_toplevel)
 
+messages_history = {"---": [[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux."]]}
 def response():
     global GLOBAL_ERR_IND
 
@@ -95,8 +104,6 @@ def response():
         return
         
 
-    
-    
     decoded_serv_response = serv_response.decode()
 
     if "LIST" in decoded_serv_response[0:5]:
@@ -123,13 +130,11 @@ def select_channel(event):
     current_channellist.insert('', 'end', text=channels.item(selected_channel)["text"])
     on_action(None, 3)
 
-root = Tk()
-root.geometry('960x480')
-root.title("Chat R.I")
-
-str_interaction_entry = StringVar()
-str_name_entry = StringVar()
-
+def fill_discussion(event):
+    discussion.delete(*discussion.get_children())
+    selected_channel = current_channellist.focus()
+    for msg in messages_history[current_channellist.item(selected_channel)["text"]]:
+        discussion.insert('', 'end', text=msg[0])
 
 interaction_frame = ttk.Frame(root)
 name = ttk.Button(root, text="unnamed", command=popup_name)
@@ -151,6 +156,7 @@ root.wait_window(name_toplevel)
 current_channellist_scrollbar = ttk.Scrollbar(root)
 current_channellist = ttk.Treeview(root, show="tree", yscrollcommand=current_channellist_scrollbar.set)
 current_channellist.insert('', 'end', text="---")
+current_channellist.bind("<Double-Button-1>", fill_discussion)
 current_channellist_scrollbar.config(command=current_channellist.yview)
 
 
