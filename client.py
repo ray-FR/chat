@@ -176,6 +176,8 @@ def select_channel(event):
             return
     current_channellist.insert('', 'end', text=channels.item(selected_channel)["text"])
     messages_history[channels.item(selected_channel)["text"]] = [[], 1]
+    current_channellist.selection_set(current_channellist.get_children()[-1])
+    current_channellist.focus(current_channellist.get_children()[-1])
     on_action(None, 3)
 
 def select_member(event):
@@ -185,6 +187,9 @@ def select_member(event):
             return
     current_channellist.insert('', 'end', text=participants.item(selected_member)["text"])
     messages_history[participants.item(selected_member)["text"]] = [[], 2]
+    current_channellist.selection_set(current_channellist.get_children()[-1])
+    current_channellist.focus(current_channellist.get_children()[-1])
+
 
 def fill_discussion(event):
     discussion.delete(*discussion.get_children())
