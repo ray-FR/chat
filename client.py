@@ -157,6 +157,15 @@ def response():
             participants_history.append(members_args[i])
             participants.insert('', 'end', text=members_args[i])
 
+    if "JOIN" in decoded_serv_response[0:5]:
+        split_message = decoded_serv_response.split(" ")
+        messages_history[split_message[2][:-1]][0].append([f"---{split_message[1]} à rejoint le canaux!---"])
+        selected_channel = current_channellist.focus()
+        if current_channellist.item(selected_channel)["text"] == split_message[2][:-1]:
+            fill_discussion(None)
+        if split_message[1] not in participants_history:
+            participants_history.append(split_message[1])
+            participants.insert('', 'end', text=split_message[1])
 
 
 
@@ -178,6 +187,7 @@ def select_channel(event):
     messages_history[channels.item(selected_channel)["text"]] = [[], 1]
     current_channellist.selection_set(current_channellist.get_children()[-1])
     current_channellist.focus(current_channellist.get_children()[-1])
+    fill_discussion(None)
     on_action(None, 3)
 
 def select_member(event):
@@ -189,6 +199,7 @@ def select_member(event):
     messages_history[participants.item(selected_member)["text"]] = [[], 2]
     current_channellist.selection_set(current_channellist.get_children()[-1])
     current_channellist.focus(current_channellist.get_children()[-1])
+    fill_discussion(None)
 
 
 def fill_discussion(event):
