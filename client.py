@@ -296,6 +296,7 @@ interaction_frame = ttk.Frame(root)
 name = ttk.Button(root, text="unnamed", command=popup_name)
 interaction_entry = ttk.Entry(root, textvariable=str_interaction_entry, width=(root.winfo_width() - 150))
 interaction_entry.bind('<Return>', lambda event: on_action(event, 4))
+interaction_quit = ttk.Button(root, text="Quitter", command=lambda: on_action(None, 7))
 
 name_toplevel = Toplevel(root)
 name_toplevel.title("Votre nom")
