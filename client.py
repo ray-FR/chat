@@ -141,7 +141,16 @@ def response():
             fill_discussion(None)
 
     if "PRIV" in decoded_serv_response[0:5]:
+        pm_opened = 0
         split_message = decoded_serv_response.split(" ")
+        for priv_msg in current_channellist.get_children():
+            if current_channellist.item(priv_msg)["text"] == split_message[1]:
+                pm_opened = 1
+                break
+        if not pm_opened:
+            current_channellist.insert('', 'end', text=split_message[1])
+            messages_history[split_message[1]] = [[], 2]
+
         messages_history[split_message[1]][0].append([f"{split_message[1]}: {' '.join(split_message[2:])}"])
         selected_channel = current_channellist.focus()
         if current_channellist.item(selected_channel)["text"] == split_message[1]:
@@ -176,8 +185,8 @@ def response():
 
     if "QUIT" in decoded_serv_response[0:5]:
         split_message = decoded_serv_response.split(" ")
-        selected_channel = current_channellist.focus()
-        messages_history[current_channellist.item(selected_channel)["text"]][0].append([f"---{split_message[1][:-1]} à quitté le serveur!---"])
+        for channel in current_channellist.get_children():
+            messages_history[current_channellist.item(channel)["text"]][0].append([f"---{split_message[1][:-1]} à quitté le serveur!---"])
         participants_history.remove(split_message[1][:-1])
         for mem in participants.get_children():
             if participants.item(mem)["text"] == split_message[1][:-1]:
