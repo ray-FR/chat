@@ -48,7 +48,7 @@ def on_action(e, type):
         
         if GLOBAL_ERR_IND == 0:
             name_toplevel.destroy()
-            name.config(text=str_name_entry.get())
+            name.config(text=f"Nom: {str_name_entry.get()}")
         str_name_entry.set("")
         GLOBAL_ERR_IND = 0
 
