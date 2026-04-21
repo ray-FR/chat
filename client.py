@@ -159,13 +159,33 @@ def response():
 
     if "JOIN" in decoded_serv_response[0:5]:
         split_message = decoded_serv_response.split(" ")
-        messages_history[split_message[2][:-1]][0].append([f"---{split_message[1]} à rejoint le canaux!---"])
+        messages_history[split_message[2][:-1]][0].append([f"---{split_message[1]} à rejoint le canal!---"])
         selected_channel = current_channellist.focus()
         if current_channellist.item(selected_channel)["text"] == split_message[2][:-1]:
             fill_discussion(None)
         if split_message[1] not in participants_history:
             participants_history.append(split_message[1])
             participants.insert('', 'end', text=split_message[1])
+
+    if "EXIT" in decoded_serv_response[0:5]:
+        split_message = decoded_serv_response.split(" ")
+        messages_history[split_message[2][:-1]][0].append([f"---{split_message[1]} à quitté le canal!---"])
+        selected_channel = current_channellist.focus()
+        if current_channellist.item(selected_channel)["text"] == split_message[2][:-1]:
+            fill_discussion(None)
+
+    if "QUIT" in decoded_serv_response[0:5]:
+        split_message = decoded_serv_response.split(" ")
+        selected_channel = current_channellist.focus()
+        messages_history[current_channellist.item(selected_channel)["text"]][0].append([f"---{split_message[1][:-1]} à quitté le serveur!---"])
+        participants_history.remove(split_message[1][:-1])
+        for mem in participants.get_children():
+            if participants.item(mem)["text"] == split_message[1][:-1]:
+                participants.delete(mem)
+                break
+
+        
+        fill_discussion(None)
 
 
 
@@ -207,6 +227,10 @@ def fill_discussion(event):
     selected_channel = current_channellist.focus()
     for msg in messages_history[current_channellist.item(selected_channel)["text"]][0]:
         discussion.insert('', 'end', text=msg[0])
+    if selected_channel == current_channellist.get_children()[0]:
+        interaction_entry['state'] = 'disabled'
+    else:
+        interaction_entry['state'] = 'enabled'
 
 time_to_compare = time()
 
