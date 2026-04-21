@@ -274,7 +274,9 @@ discussion_scrollbar.config(command=discussion.yview)
 
 channels_frame_top = ttk.Frame(root)
 channels_label = ttk.Label(root, text="Canaux")
-channels_button = ttk.Button(root, text="⇅", width=0, command=(lambda: on_action(None, 2)))
+channels_button_refresh = ttk.Button(root, text="⇅", width=0, command=(lambda: on_action(None, 2)))
+channels_button_create = ttk.Button(root, text="+", width=0, command=popup_create)
+
 
 channels_frame_main = ttk.Frame(root)
 channels_scrollbar = ttk.Scrollbar(root)
@@ -305,7 +307,8 @@ discussion_scrollbar.pack(side="left", fill="y")
 
 channels_frame_top.pack(side="top", fill="x")
 channels_label.pack(in_=channels_frame_top, side="left", padx=(10))
-channels_button.pack(in_=channels_frame_top, side="right", padx=(0, 20))
+channels_button_refresh.pack(in_=channels_frame_top, side="right", padx=(0, 10))
+channels_button_create.pack(in_=channels_frame_top, side="right", padx=(10, 5))
 channels_frame_main.pack(side="top", fill="both")
 channels.pack(in_=channels_frame_main, side="left", fill="y", expand=YES)
 channels_scrollbar.pack(in_=channels_frame_main, side="left", fill="y")
