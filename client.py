@@ -95,7 +95,15 @@ def on_action(e, type):
 
         str_channel_create.set("")
         GLOBAL_ERR_IND = 0
-            
+
+    if type == 7:
+        selected_channel = current_channellist.focus()
+        
+        if current_channellist.item(selected_channel)["text"] != "Bienvenue--------":
+            sock.send((f"EXIT {current_channellist.item(selected_channel)['text']}\n").encode())
+            del messages_history[current_channellist.item(selected_channel)['text']]
+            current_channellist.delete(selected_channel)
+
 
 def popup_name():        
     name_toplevel = Toplevel(root)
@@ -215,6 +223,8 @@ def response():
 
     if "EXIT" in decoded_serv_response[0:5]:
         split_message = decoded_serv_response.split(" ")
+        if len(split_message) == 2:
+            return
         messages_history[split_message[2][:-1]][0].append([f"---{split_message[1]} à quitté le canal!---"])
         selected_channel = current_channellist.focus()
         if current_channellist.item(selected_channel)["text"] == split_message[2][:-1]:
@@ -275,8 +285,10 @@ def fill_discussion(event):
         discussion.insert('', 'end', text=msg[0])
     if selected_channel == current_channellist.get_children()[0]:
         interaction_entry['state'] = 'disabled'
+        interaction_quit['state'] = 'disabled'
     else:
         interaction_entry['state'] = 'enabled'
+        interaction_quit['state'] = 'enabled'
 
 time_to_compare = time()
 
