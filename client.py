@@ -103,6 +103,7 @@ def on_action(e, type):
             sock.send((f"EXIT {current_channellist.item(selected_channel)['text']}\n").encode())
             del messages_history[current_channellist.item(selected_channel)['text']]
             current_channellist.delete(selected_channel)
+            discussion.delete(*discussion.get_children())
 
 
 def popup_name():        
@@ -139,13 +140,13 @@ def popup_create():
     create_toplevel_button = ttk.Button(create_toplevel, text="Créer", command= lambda: (on_action(None, 6)))
     create_toplevel.bind('<Return>', lambda event: (on_action(event, 6)))
     create_toplevel_label.pack(pady=(10, 5))
-    create_toplevel_entry.pack()
+    create_toplevel_entry.pack(pady=(0, 5))
     create_toplevel_button.pack()
     root.wait_window(create_toplevel)
 
 
 
-messages_history = {"Bienvenue--------": [[[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux à droite!"],["(En double cliquant sur le canaux ou le MP à rejoindre)"]], 0]}
+messages_history = {"Bienvenue--------": [[[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau!"],["(à droite en double cliquant sur le canaux ou le MP à rejoindre)"]], 0]}
 participants_history = []
 
 def response():
@@ -206,7 +207,7 @@ def response():
         members_args = decoded_serv_response.split("\n")
         
         for i in range(1, len(members_args) - 1):
-            if members_args[i] in participants_history or name['text'] == members_args[i]:
+            if members_args[i] in participants_history or members_args[i] in name['text']:
                 continue
             participants_history.append(members_args[i])
             participants.insert('', 'end', text=members_args[i])
@@ -294,7 +295,7 @@ time_to_compare = time()
 
 interaction_frame = ttk.Frame(root)
 name = ttk.Button(root, text="unnamed", command=popup_name)
-interaction_entry = ttk.Entry(root, textvariable=str_interaction_entry, width=(root.winfo_width() - 150))
+interaction_entry = ttk.Entry(root, textvariable=str_interaction_entry, width=(50))
 interaction_entry.bind('<Return>', lambda event: on_action(event, 4))
 interaction_quit = ttk.Button(root, text="Quitter", command=lambda: on_action(None, 7))
 
