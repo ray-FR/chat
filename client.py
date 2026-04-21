@@ -333,7 +333,8 @@ participants_scrollbar.config(command=participants.yview)
 
 interaction_frame.pack(side="bottom", pady=10)
 name.pack(in_= interaction_frame, side="left", padx= 20)
-interaction_entry.pack(in_= interaction_frame ,side="left")
+interaction_entry.pack(in_= interaction_frame, side="left")
+interaction_quit.pack(in_= interaction_frame, side="left", padx= 20)
 
 
 current_channellist.pack(side="left",fill="y", padx=0)
