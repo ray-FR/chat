@@ -36,6 +36,7 @@ style.configure("Diss.Treeview", font=("Arial", 13))
 
 str_interaction_entry = StringVar()
 str_name_entry = StringVar()
+str_channel_create = StringVar()
 
 def on_action(e, type):
     global GLOBAL_ERR_IND
@@ -75,6 +76,27 @@ def on_action(e, type):
         sleep(0.5)
         response()
 
+    if type == 6:
+        for channel in current_channellist.get_children():
+            if current_channellist.item(channel)["text"] == str_channel_create.get():
+                popup_error("Channel already exists!")
+                return
+        sock.send((f"JOIN {str_channel_create.get()}\n").encode())
+        sleep(0.5)
+        response()
+        if GLOBAL_ERR_IND == 0:
+            current_channellist.insert('', 'end', text=str_channel_create.get())
+            messages_history[str_channel_create.get()] = [[], 1]
+            current_channellist.selection_set(current_channellist.get_children()[-1])
+            current_channellist.focus(current_channellist.get_children()[-1])
+            fill_discussion(None)
+            str_channel_create.set("") 
+            return
+
+        str_channel_create.set("")
+        GLOBAL_ERR_IND = 0
+            
+
 def popup_name():        
     name_toplevel = Toplevel(root)
     name_toplevel.title("Votre nom")
@@ -88,7 +110,6 @@ def popup_name():
     root.wait_window(name_toplevel)
 
 def popup_error(err):
-    print(err)
     error_toplevel = Toplevel(root)
     error_toplevel.title("ERREUR!")
     error_toplevel.grab_set()
@@ -99,6 +120,22 @@ def popup_error(err):
     error_toplevel_label.pack(pady=(15, 5))
     error_toplevel_button.pack()
     root.wait_window(error_toplevel)
+
+def popup_create():
+    create_toplevel = Toplevel(root)
+    create_toplevel.title("Crée un canal")
+    create_toplevel.grab_set()
+    create_toplevel.geometry('400x100')
+    create_toplevel_label = ttk.Label(create_toplevel, text="Nom du nouveau canal?")
+    create_toplevel_entry = ttk.Entry(create_toplevel, textvariable=str_channel_create)
+    create_toplevel_button = ttk.Button(create_toplevel, text="Créer", command= lambda: (on_action(None, 6)))
+    create_toplevel.bind('<Return>', lambda event: (on_action(event, 6)))
+    create_toplevel_label.pack(pady=(10, 5))
+    create_toplevel_entry.pack()
+    create_toplevel_button.pack()
+    root.wait_window(create_toplevel)
+
+
 
 messages_history = {"Bienvenue--------": [[[f"Bienvenue sur le serveur hébergé sur {sys.argv[1]}!"],["Pour commencer à parler, sélectionnez tout simplement un canau à dans la liste des canaux à droite!"],["(En double cliquant sur le canaux ou le MP à rejoindre)"]], 0]}
 participants_history = []
