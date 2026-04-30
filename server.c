@@ -106,16 +106,41 @@ int main(int argc, char** argv){
     int len;
     int ret;
     int userfd;
+    userlist* UL;
     uint8_t buf[1024];
-    struct pollfd pfd[31];
     if(argc == 1 || argc > 3){
-        fprintf(stderr, "Usage: ./nc [HOST] PORT\n");
+        fprintf(stderr, "Usage: ./server.out PORT\n");
         exit(EXIT_FAILURE);
     }
-    pfd[0].fd = serv(argv[1]);
-    pfd[0].events = POLLIN;
+    UL = init_userlist();
+    UL->pfd[0].fd = serv(argv[1]);
+    UL->pfd[0].events = POLLIN;
     for(;;){
+        ret = poll(UL->pfd, UL->current_number_of_user, -1);
         
+        if (ret > 0){
+            bzero(&buf, sizeof(buf));
+            
+            if(UL->pfd[0].revents & POLLIN){
+                userfd = accept(UL->pfd[0].fd, NULL, NULL);
+                
+                UL->pfd[UL->current_number_of_user].fd = userfd;
+                UL->pfd[UL->current_number_of_user].events = POLLIN;
+                UL->user_list[UL->current_number_of_user++].sfd = userfd;
+            }
+            else{
+                for(int i = 1; i < UL->current_number_of_user; i++){
+                    if(UL->pfd[i].revents & POLLIN){
+                        if ((len = recv(UL->pfd[i].fd, buf, sizeof(buf), 0)) < 0){
+                            perror("recv");
+                            exit(EXIT_FAILURE);
+                        }
+                        fprintf(stderr, (char*) buf, len);
+                    }
+                }
+            }
+            
+        }
     }
     
     
