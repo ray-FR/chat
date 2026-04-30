@@ -9,7 +9,7 @@
 #include <netinet/in.h>
 #include <poll.h>
 
-#define MAXNUM 30
+#define MAXNUM 31
 
 
 typedef struct user_t{
@@ -18,8 +18,8 @@ typedef struct user_t{
 } user;
 
 typedef struct userlist_t{
-    int max_num;
-    int current_num;
+    struct pollfd pfd[MAXNUM];
+    int current_number_of_user;
     user* user_list;
 } userlist;
 
