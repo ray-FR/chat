@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include <assert.h>
 
 #define MAXNUM 31
 
@@ -33,19 +34,17 @@ typedef struct channels_t{
     int max_channels;
     int channel_counter;
     channel* channel_names;
-
+    
 } channels;
 
 userlist* init_userlist(){
     userlist* UL;
     UL = (userlist*) malloc(sizeof *UL);
-    UL->current_num = 0;
-    UL->max_num = MAXNUM;
-
+    assert(UL);
+    
     UL->user_list = (user*) malloc(sizeof *UL->user_list);
-    for(int i = 0; i < MAXNUM; i++){
-    }
-
+    assert(UL->user_list);
+    UL->current_number_of_user = 1;
     return UL;
 }
 
@@ -83,7 +82,7 @@ int serv(char* port){
             perror("bind");
             continue;
         }
-
+        
         
         if (listen(sfd, 8) < 0){
             perror("listen");
@@ -144,6 +143,6 @@ int main(int argc, char** argv){
     }
     
     
-        
+    
     return 0;
 }
