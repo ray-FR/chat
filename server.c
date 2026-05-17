@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <poll.h>
 #include <assert.h>
+#include <ctype.h>
 
 #define MAXNUM 31
 
@@ -36,6 +37,12 @@ typedef struct channels_t{
     channel* channel_names;
     
 } channels;
+
+struct recv_command {
+    int argc;
+    char **argv;
+};
+
 
 userlist* init_userlist(){
     userlist* UL;
