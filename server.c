@@ -174,7 +174,17 @@ int main(int argc, char** argv){
                             perror("recv");
                             exit(EXIT_FAILURE);
                         }
-                        fprintf(stderr, (char*) buf, len);
+                        if (len == 0){
+                            for (int j = i; j<UL->current_number_of_user; j++){
+                                UL->user_list[j].sfd = UL->user_list[j+1].sfd; 
+                            }
+                            UL->current_number_of_user--;
+                        }
+
+
+                        struct recv_command* arr = parse_answer((char*) buf, len);
+                        for (int i = 0; i<arr->argc; i++){
+                        }
                     }
                 }
             }
