@@ -176,6 +176,7 @@ int main(int argc, char** argv){
                 UL->pfd[UL->current_number_of_user].fd = userfd;
                 UL->pfd[UL->current_number_of_user].events = POLLIN;
                 UL->user_list[UL->current_number_of_user++].sfd = userfd;
+                strcpy(UL->user_list[UL->current_number_of_user++].name, "");
             }
             else{
                 for(int i = 1; i < UL->current_number_of_user; i++){
@@ -184,9 +185,11 @@ int main(int argc, char** argv){
                             perror("recv");
                             exit(EXIT_FAILURE);
                         }
-                        if (len == 0){
-                            for (int j = i; j<UL->current_number_of_user; j++){
+                        if (len == 0 || UL->pfd[i].revents & POLLHUP){
+                            for (int j = i; j < UL->current_number_of_user; j++){
                                 UL->user_list[j].sfd = UL->user_list[j+1].sfd; 
+                                UL->pfd[j].fd = UL->pfd[j+1].fd;
+
                             }
                             UL->current_number_of_user--;
                         }
