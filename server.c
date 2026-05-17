@@ -140,6 +140,14 @@ struct recv_command * parse_answer(const char *buf, int len)
     return cmd;
 }
 
+void free_answer(struct recv_command * arr){
+    for(int i = 0; i<arr->argc; i++){
+        free(arr->argv[i]);
+    }
+    free(arr->argv);
+    free(arr);
+}
+
 int main(int argc, char** argv){
     int sfd; 
     int len;
@@ -147,6 +155,8 @@ int main(int argc, char** argv){
     int userfd;
     userlist* UL;
     uint8_t buf[1024];
+    struct recv_command* arr;
+    
     if(argc == 1 || argc > 3){
         fprintf(stderr, "Usage: ./server.out PORT\n");
         exit(EXIT_FAILURE);
@@ -180,19 +190,20 @@ int main(int argc, char** argv){
                             }
                             UL->current_number_of_user--;
                         }
-
-
-                        struct recv_command* arr = parse_answer((char*) buf, len);
-                        for (int i = 0; i<arr->argc; i++){
+                        else{    
+                            arr = parse_answer((char*) buf, len);
+                            
+                            if (strlen(arr->argv[0]) != 5){
+                                send(UL->pfd[i].fd, "ERR! 01\n", 8, 0);
+                                continue;
+                            }
+                            free_answer(arr);
                         }
                     }
                 }
             }
-            
         }
     }
-    
-    
-    
+
     return 0;
 }
