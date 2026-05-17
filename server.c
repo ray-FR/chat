@@ -110,10 +110,10 @@ struct recv_command * parse_answer(const char *buf, int len)
 {
     struct recv_command *cmd = NULL;
     char p = ' ';
-    int n, beg = 0;
+    int n = 0, beg = 0;
     int isAQuote = 0;
     const char* s = buf;
-
+    
     while(*s){
         if (isspace(p) && !isspace(*s)) n++;
         p = *s++;
@@ -121,21 +121,21 @@ struct recv_command * parse_answer(const char *buf, int len)
 
     if ((cmd = malloc(sizeof(*cmd))) == NULL)
         perror("malloc cmd");
-
+    
     cmd->argc = 0;
     if ((cmd->argv = malloc((n + 1) * sizeof(*cmd->argv))) == NULL)
         perror("malloc cmd->argv");
-
+    
     for (int i = 0; i < len; i++) {
         if (!isspace(buf[i]) && (isspace(p))) 
-            beg = i; 
+        beg = i; 
         
-        else if ((isspace(buf[i]) || buf[i] == '=')) {
+        else if ((isspace(buf[i]))) {
             cmd->argv[cmd->argc++] = strndup(buf + beg, i - beg);
         }
         p = buf[i];
     }
-
+    strcat(cmd->argv[cmd->argc-1], "\n");
     cmd->argv[cmd->argc] = NULL;
     return cmd;
 }
