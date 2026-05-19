@@ -196,10 +196,15 @@ int main(int argc, char** argv){
                         else{    
                             arr = parse_answer((char*) buf, len);
                             
-                            if (strlen(arr->argv[0]) != 5){
+                            if ((strlen(arr->argv[0]) != 4) || argc < 2){
                                 send(UL->pfd[i].fd, "ERR! 01\n", 8, 0);
+                                free_answer(arr);
                                 continue;
                             }
+                            else if (strcmp(arr->argv[0], "NAME") == 0){
+                                
+                            }
+
                             free_answer(arr);
                         }
                     }
