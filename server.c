@@ -49,7 +49,7 @@ userlist* init_userlist(){
     UL = (userlist*) malloc(sizeof *UL);
     assert(UL);
     
-    UL->user_list = (user*) malloc(sizeof *UL->user_list);
+    UL->user_list = (user*) malloc(MAXNUM * sizeof *UL->user_list);
     assert(UL->user_list);
     UL->current_number_of_user = 1;
     return UL;
@@ -103,6 +103,7 @@ int serv(char* port){
         exit(EXIT_FAILURE);
     }
     freeaddrinfo(gai);
+    fprintf(stderr, "SERVER IS ONLINE\n");
     return sfd;
 }
 
@@ -195,14 +196,35 @@ int main(int argc, char** argv){
                         }
                         else{    
                             arr = parse_answer((char*) buf, len);
-                            
+                            // TODO: implements list containing every commands so that it can indicate whether it's valid or not and send back ERR! 01 even if disconnected 
                             if ((strlen(arr->argv[0]) != 4) || argc < 2){
                                 send(UL->pfd[i].fd, "ERR! 01\n", 8, 0);
                                 free_answer(arr);
                                 continue;
                             }
                             else if (strcmp(arr->argv[0], "NAME") == 0){
-                                
+                                if (arr->argc != 2){
+                                    send(UL->pfd[i].fd, "ERR! 10\n", 8, 0);
+                                    free_answer(arr);
+                                    continue;
+                                }
+                                if (strlen(arr->argv[1]) > 16){
+                                    send(UL->pfd[i].fd, "ERR! 10\n", 8, 0);
+                                    free_answer(arr);
+                                    continue;
+                                }
+                                strcpy(UL->user_list[i].name, arr->argv[1]);
+                                send(UL->pfd[i].fd, "OK\n", 3, 0);
+                                free_answer(arr);
+                                continue;
+
+                            }
+
+                            else if (strcmp(UL->user_list[i].name, "") == 0){
+                                send(UL->pfd[i].fd, "ERR! 02\n", 8, 0);
+                                free_answer(arr);
+                                continue;
+           
                             }
 
                             free_answer(arr);
