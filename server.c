@@ -292,6 +292,17 @@ int main(int argc, char** argv){
                 }
 
                 else if (strcmp(arr->argv[0], "JOIN") == 0){
+                    if (arr->argc != 2){
+                        send(UL->users[i].pfd.fd, "ERR! 10\n", 8, 0);
+                        free_answer(arr);
+                        continue;
+                    }
+                    else if (strlen(arr->argv[1]) > 15){
+                        send(UL->users[i].pfd.fd, "ERR! 10\n", 8, 0);
+                        free_answer(arr);
+                        continue;
+                    }
+                    
                     int FOUND_CHANNEL = 0;
 
                     for (int j = 0; j < CL->channel_counter; j++){
@@ -300,14 +311,14 @@ int main(int argc, char** argv){
 
                             UL->users[i].channel_ids[UL->users[i].channel_count++] = j;
                             
-                            sprintf(tmp_buf, "MEMB %d\n", CL->channel_names[j].member_count);
+                            snprintf(tmp_buf, sizeof(tmp_buf), "MEMB %d\n", CL->channel_names[j].member_count);
                             send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
 
                             for (int k = 0; k < CL->channel_names[j].member_count; k++){
                                 for (int l = 1; l < UL->current_number_of_user; l++){
                                     if (CL->channel_names[j].member_list[k] == UL->users[l].pfd.fd){
                                         snprintf(tmp_buf, sizeof(tmp_buf), "%s\n", UL->users[l].name);
-
+                                        //TODO: send JOIN member to other members of said channel
                                         send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
                                     }
                                 }
