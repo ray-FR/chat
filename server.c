@@ -278,7 +278,7 @@ int main(int argc, char** argv){
 
                     printf("%s %d\n", UL->users[i].name, UL->users[i].pfd.fd);
 
-                    send(UL->users[i].pfd.fd, "OKAY\n", 3, 0);
+                    send(UL->users[i].pfd.fd, "OKAY\n", 5, 0);
 
                     free_answer(arr);
 
