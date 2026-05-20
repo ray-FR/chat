@@ -13,227 +13,343 @@
 
 #define MAXNUM 31
 
-
 typedef struct user_t{
-    int sfd;
+    struct pollfd pfd;
     char name[16];
+    int channel_count;
+    int channel_ids[MAXNUM];
 } user;
 
 typedef struct userlist_t{
-    struct pollfd pfd[MAXNUM];
     int current_number_of_user;
-    user* user_list;
+    user users[MAXNUM];
 } userlist;
 
 typedef struct channel_t{
     char name[16];
     int member_count;
-    user* member_list;
+    int member_list[MAXNUM];
 } channel;
 
 typedef struct channels_t{
-    int max_channels;
     int channel_counter;
-    channel* channel_names;
-    
+    channel channel_names[MAXNUM];
 } channels;
 
-struct recv_command {
+struct recv_command{
     int argc;
     char **argv;
 };
 
-
 userlist* init_userlist(){
-    userlist* UL;
-    UL = (userlist*) malloc(sizeof *UL);
+    userlist* UL = malloc(sizeof(userlist));
     assert(UL);
-    
-    UL->user_list = (user*) malloc(MAXNUM * sizeof *UL->user_list);
-    assert(UL->user_list);
     UL->current_number_of_user = 1;
     return UL;
 }
 
+channels* init_channellist(){
+    channels* CL = malloc(sizeof(channels));
+    assert(CL);
+    CL->channel_counter = 0;
+    return CL;
+}
+
 void free_userlist(userlist* UL){
-    free(UL->user_list);
     free(UL);
+}
+
+void free_channellist(channels* CL){
+    free(CL);
 }
 
 int serv(char* port){
     struct addrinfo hints, *gai, *ai;
     int err;
-    int sfd; 
-    int acc;
-    
+    int sfd;
+
     bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
+
     if ((err = getaddrinfo(NULL, port, &hints, &gai)) != 0){
-        fprintf(stderr, "./server: getaddrinfo [%s] %s", port, gai_strerror(err));
+        fprintf(stderr, "./server: getaddrinfo [%s] %s\n", port, gai_strerror(err));
         exit(EXIT_FAILURE);
-    } 
-    
+    }
+
     for (ai = gai; ai != NULL; ai = ai->ai_next){
         if ((sfd = socket(ai->ai_family, ai->ai_socktype, 0)) < 0){
             perror("socket");
             continue;
         }
+
         int v = 1;
-        if ((setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &v, sizeof(int))) < 0){
+
+        if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &v, sizeof(int)) < 0){
             perror("setsockopt");
             exit(EXIT_FAILURE);
         }
+
         if (bind(sfd, ai->ai_addr, ai->ai_addrlen) < 0){
             perror("bind");
             continue;
         }
-        
-        
+
         if (listen(sfd, 8) < 0){
             perror("listen");
             continue;
-        }        
+        }
+
         break;
     }
-    
+
     if (ai == NULL){
         fprintf(stderr, "Something went wrong\n");
         exit(EXIT_FAILURE);
     }
+
     freeaddrinfo(gai);
+
     fprintf(stderr, "SERVER IS ONLINE\n");
+
     return sfd;
 }
 
-struct recv_command * parse_answer(const char *buf, int len)
-{
+struct recv_command* parse_answer(const char *buf, int len){
     struct recv_command *cmd = NULL;
     char p = ' ';
-    int n = 0, beg = 0;
-    int isAQuote = 0;
+    int n = 0;
+    int beg = 0;
     const char* s = buf;
-    
-    while(*s){
+
+    while (*s){
         if (isspace(p) && !isspace(*s)) n++;
         p = *s++;
     }
 
-    if ((cmd = malloc(sizeof(*cmd))) == NULL)
-        perror("malloc cmd");
-    
+    cmd = malloc(sizeof(*cmd));
+    assert(cmd);
+
     cmd->argc = 0;
-    if ((cmd->argv = malloc((n + 1) * sizeof(*cmd->argv))) == NULL)
-        perror("malloc cmd->argv");
-    
-    for (int i = 0; i < len; i++) {
-        if (!isspace(buf[i]) && (isspace(p))) 
-        beg = i; 
-        
-        else if ((isspace(buf[i]))) {
+
+    cmd->argv = malloc((n + 1) * sizeof(*cmd->argv));
+    assert(cmd->argv);
+
+    p = ' ';
+
+    for (int i = 0; i < len; i++){
+        if (!isspace(buf[i]) && isspace(p)){
+            beg = i;
+        }
+        else if (isspace(buf[i]) && !isspace(p)){
             cmd->argv[cmd->argc++] = strndup(buf + beg, i - beg);
         }
+
         p = buf[i];
     }
-    strcat(cmd->argv[cmd->argc-1], "\n");
+
     cmd->argv[cmd->argc] = NULL;
+
     return cmd;
 }
 
-void free_answer(struct recv_command * arr){
-    for(int i = 0; i<arr->argc; i++){
+void free_answer(struct recv_command *arr){
+    for (int i = 0; i < arr->argc; i++){
         free(arr->argv[i]);
     }
+
     free(arr->argv);
     free(arr);
 }
 
 int main(int argc, char** argv){
-    int sfd; 
     int len;
     int ret;
     int userfd;
-    userlist* UL;
+
     uint8_t buf[1024];
+    char tmp_buf[1024];
+
     struct recv_command* arr;
-    
-    if(argc == 1 || argc > 3){
+
+    userlist* UL;
+    channels* CL;
+
+    if (argc != 2){
         fprintf(stderr, "Usage: ./server.out PORT\n");
         exit(EXIT_FAILURE);
     }
+
     UL = init_userlist();
-    UL->pfd[0].fd = serv(argv[1]);
-    UL->pfd[0].events = POLLIN;
-    for(;;){
-        ret = poll(UL->pfd, UL->current_number_of_user, -1);
-        
-        if (ret > 0){
-            bzero(&buf, sizeof(buf));
-            
-            if(UL->pfd[0].revents & POLLIN){
-                userfd = accept(UL->pfd[0].fd, NULL, NULL);
-                
-                UL->pfd[UL->current_number_of_user].fd = userfd;
-                UL->pfd[UL->current_number_of_user].events = POLLIN;
-                UL->user_list[UL->current_number_of_user++].sfd = userfd;
-                strcpy(UL->user_list[UL->current_number_of_user++].name, "");
+    CL = init_channellist();
+
+    UL->users[0].pfd.fd = serv(argv[1]);
+    UL->users[0].pfd.events = POLLIN;
+
+    for (;;){
+        struct pollfd pfds[MAXNUM];
+
+        for (int i = 0; i < UL->current_number_of_user; i++){
+            pfds[i] = UL->users[i].pfd;
+        }
+
+        ret = poll(pfds, UL->current_number_of_user, -1);
+
+        if (ret < 0){
+            perror("poll");
+            exit(EXIT_FAILURE);
+        }
+
+        for (int i = 0; i < UL->current_number_of_user; i++){
+            UL->users[i].pfd.revents = pfds[i].revents;
+        }
+
+        bzero(buf, sizeof(buf));
+
+        if (UL->users[0].pfd.revents & POLLIN){
+            userfd = accept(UL->users[0].pfd.fd, NULL, NULL);
+
+            if (userfd < 0){
+                perror("accept");
+                continue;
             }
-            else{
-                for(int i = 1; i < UL->current_number_of_user; i++){
-                    if(UL->pfd[i].revents & POLLIN){
-                        if ((len = recv(UL->pfd[i].fd, buf, sizeof(buf), 0)) < 0){
-                            perror("recv");
-                            exit(EXIT_FAILURE);
-                        }
-                        if (len == 0 || UL->pfd[i].revents & POLLHUP){
-                            for (int j = i; j < UL->current_number_of_user; j++){
-                                UL->user_list[j].sfd = UL->user_list[j+1].sfd; 
-                                UL->pfd[j].fd = UL->pfd[j+1].fd;
 
-                            }
-                            UL->current_number_of_user--;
-                        }
-                        else{    
-                            arr = parse_answer((char*) buf, len);
-                            // TODO: implements list containing every commands so that it can indicate whether it's valid or not and send back ERR! 01 even if disconnected 
-                            if ((strlen(arr->argv[0]) != 4) || argc < 2){
-                                send(UL->pfd[i].fd, "ERR! 01\n", 8, 0);
-                                free_answer(arr);
-                                continue;
-                            }
-                            else if (strcmp(arr->argv[0], "NAME") == 0){
-                                if (arr->argc != 2){
-                                    send(UL->pfd[i].fd, "ERR! 10\n", 8, 0);
-                                    free_answer(arr);
-                                    continue;
+            int COUNTER = UL->current_number_of_user;
+
+            UL->users[COUNTER].pfd.fd = userfd;
+            UL->users[COUNTER].pfd.events = POLLIN;
+            UL->users[COUNTER].channel_count = 0;
+
+            strcpy(UL->users[COUNTER].name, "");
+
+            UL->current_number_of_user++;
+        }
+
+        for (int i = 1; i < UL->current_number_of_user; i++){
+            if (UL->users[i].pfd.revents & POLLIN){
+                len = recv(UL->users[i].pfd.fd, buf, sizeof(buf), 0);
+
+                if (len < 0){
+                    perror("recv");
+                    continue;
+                }
+
+                if (len == 0 || (UL->users[i].pfd.revents & POLLHUP)){
+                    close(UL->users[i].pfd.fd);
+
+                    for (int j = i; j < UL->current_number_of_user - 1; j++){
+                        UL->users[j] = UL->users[j + 1];
+                    }
+
+                    UL->current_number_of_user--;
+                    i--;
+
+                    continue;
+                }
+
+                arr = parse_answer((char*)buf, len);
+
+                if (arr->argc < 1){
+                    free_answer(arr);
+                    continue;
+                }
+
+                if (strlen(arr->argv[0]) != 4){
+                    send(UL->users[i].pfd.fd, "ERR! 01\n", 8, 0);
+                    free_answer(arr);
+                    continue;
+                }
+
+                else if (strcmp(arr->argv[0], "NAME") == 0){
+                    if (arr->argc != 2){
+                        send(UL->users[i].pfd.fd, "ERR! 10\n", 8, 0);
+                        free_answer(arr);
+                        continue;
+                    }
+
+                    if (strlen(arr->argv[1]) > 15){
+                        send(UL->users[i].pfd.fd, "ERR! 10\n", 8, 0);
+                        free_answer(arr);
+                        continue;
+                    }
+
+                    strcpy(UL->users[i].name, arr->argv[1]);
+
+                    printf("%s %d\n", UL->users[i].name, UL->users[i].pfd.fd);
+
+                    send(UL->users[i].pfd.fd, "OKAY\n", 3, 0);
+
+                    free_answer(arr);
+
+                    continue;
+                }
+
+                else if (strcmp(UL->users[i].name, "") == 0){
+                    send(UL->users[i].pfd.fd, "ERR! 02\n", 8, 0);
+                    free_answer(arr);
+                    continue;
+                }
+
+                else if (strcmp(arr->argv[0], "JOIN") == 0){
+                    int FOUND_CHANNEL = 0;
+
+                    for (int j = 0; j < CL->channel_counter; j++){
+                        if (strcmp(arr->argv[1], CL->channel_names[j].name) == 0){
+                            CL->channel_names[j].member_list[CL->channel_names[j].member_count++] = UL->users[i].pfd.fd;
+
+                            UL->users[i].channel_ids[UL->users[i].channel_count++] = j;
+                            
+                            sprintf(tmp_buf, "MEMB %d\n", CL->channel_names[j].member_count);
+                            send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
+
+                            for (int k = 0; k < CL->channel_names[j].member_count; k++){
+                                for (int l = 1; l < UL->current_number_of_user; l++){
+                                    if (CL->channel_names[j].member_list[k] == UL->users[l].pfd.fd){
+                                        snprintf(tmp_buf, sizeof(tmp_buf), "%s\n", UL->users[l].name);
+
+                                        send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
+                                    }
                                 }
-                                if (strlen(arr->argv[1]) > 16){
-                                    send(UL->pfd[i].fd, "ERR! 10\n", 8, 0);
-                                    free_answer(arr);
-                                    continue;
-                                }
-                                strcpy(UL->user_list[i].name, arr->argv[1]);
-                                send(UL->pfd[i].fd, "OK\n", 3, 0);
-                                free_answer(arr);
-                                continue;
-
                             }
 
-                            else if (strcmp(UL->user_list[i].name, "") == 0){
-                                send(UL->pfd[i].fd, "ERR! 02\n", 8, 0);
-                                free_answer(arr);
-                                continue;
-           
-                            }
+                            FOUND_CHANNEL = 1;
 
-                            free_answer(arr);
+                            break;
                         }
                     }
+
+                    if (!FOUND_CHANNEL){
+                        int COUNTER = CL->channel_counter;
+
+                        strcpy(CL->channel_names[COUNTER].name, arr->argv[1]);
+
+                        CL->channel_names[COUNTER].member_count = 0;
+
+                        CL->channel_names[COUNTER].member_list[CL->channel_names[COUNTER].member_count++] = UL->users[i].pfd.fd;
+
+                        UL->users[i].channel_ids[UL->users[i].channel_count++] = COUNTER;
+
+                        CL->channel_counter++;
+
+                        printf("NEW CHANNEL -- %s\n", CL->channel_names[COUNTER].name);
+                        sprintf(tmp_buf, "MEMB 1\n %s\n", UL->users[i].name);
+                        send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
+
+                    }
+
+                    free_answer(arr);
+
+                    continue;
                 }
+
+                free_answer(arr);
             }
         }
     }
+
+    free_userlist(UL);
+    free_channellist(CL);
 
     return 0;
 }
