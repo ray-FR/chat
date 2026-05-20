@@ -354,6 +354,32 @@ int main(int argc, char** argv){
                     continue;
                 }
 
+                else if (strcmp(arr->argv[0], "TALK") == 0){
+                    int id_channel;
+                    snprintf(tmp_buf, sizeof(tmp_buf), "TALK %s %s ", UL->users[i].name, arr->argv[1]);
+                    for(int j = 2; j<arr->argc; j++){
+                        strcat(tmp_buf, arr->argv[j]);
+                        strcat(tmp_buf, " "); 
+                    }
+                    strcat(tmp_buf, "\n");
+                    printf("%s\n", tmp_buf);
+                    for (int j = 0; j<UL->users[i].channel_count; i++){
+                        if (strcmp(arr->argv[1], CL->channel_names[UL->users[i].channel_ids[j]].name) == 0){
+                            id_channel = UL->users[i].channel_ids[j];
+                            for (int k = 0; k<CL->channel_names[id_channel].member_count; k++){
+                                printf("%d %s\n", CL->channel_names[id_channel].member_list[k], UL->users[i].name);
+                                if (CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd)
+                                    continue;
+                                send(CL->channel_names[id_channel].member_list[k], tmp_buf, sizeof(tmp_buf), 0);
+                            }
+                            break;
+                        }
+                    }
+                    free_answer(arr);
+                    continue;
+                    
+                }
+
                 free_answer(arr);
             }
         }
