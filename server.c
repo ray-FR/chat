@@ -403,6 +403,26 @@ int main(int argc, char** argv){
                     
                 }
 
+                else if (strcmp(arr->argv[0], "LIST") == 0){
+
+                    if (arr->argc != 1){
+                        send(UL->users[i].pfd.fd, "ERR! 01\n", 8, 0);
+                        free_answer(arr);
+                        continue;
+                    }
+
+                    snprintf(tmp_buf, sizeof(tmp_buf), "LIST %d\n", CL->channel_counter);
+                    send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);
+                    for (int j = 0; j<CL->channel_counter; j++){
+                        snprintf(tmp_buf, sizeof(tmp_buf), "%s\n", CL->channel_names[j].name);
+                        send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);    
+                            
+                    }
+                    free_answer(arr);
+                    continue;
+
+                }
+
                 free_answer(arr);
             }
         }
