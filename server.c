@@ -355,7 +355,24 @@ int main(int argc, char** argv){
                 }
 
                 else if (strcmp(arr->argv[0], "TALK") == 0){
+                    int len = 0;
+                    if(arr->argc < 3){
+                        send(UL->users[i].pfd.fd, "ERR! 01\n", 8, 0);
+                        free_answer(arr);
+                        continue; 
+                    }
+
+                    for (int j = 2; j<arr->argc; j++){
+                        len += strlen(arr->argv[j]);
+                    }
+                    if (len > 1024){
+                        send(UL->users[i].pfd.fd, "ERR! 21\n", 8, 0);
+                        free_answer(arr);
+                        continue;
+                    }
+
                     int id_channel;
+                    int FOUND_CHANNEL = 0;
                     snprintf(tmp_buf, sizeof(tmp_buf), "TALK %s %s ", UL->users[i].name, arr->argv[1]);
                     for(int j = 2; j<arr->argc; j++){
                         strcat(tmp_buf, arr->argv[j]);
@@ -366,6 +383,7 @@ int main(int argc, char** argv){
                     for (int j = 0; j<UL->users[i].channel_count; i++){
                         if (strcmp(arr->argv[1], CL->channel_names[UL->users[i].channel_ids[j]].name) == 0){
                             id_channel = UL->users[i].channel_ids[j];
+                            FOUND_CHANNEL = 1;
                             for (int k = 0; k<CL->channel_names[id_channel].member_count; k++){
                                 printf("%d %s\n", CL->channel_names[id_channel].member_list[k], UL->users[i].name);
                                 if (CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd)
@@ -374,6 +392,11 @@ int main(int argc, char** argv){
                             }
                             break;
                         }
+                    }
+                    if (!FOUND_CHANNEL){
+                        send(UL->users[i].pfd.fd, "ERR! 03\n", 8, 0);
+                        free_answer(arr);
+                        continue;
                     }
                     free_answer(arr);
                     continue;
