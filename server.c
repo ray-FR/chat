@@ -379,7 +379,6 @@ int main(int argc, char** argv){
                         strcat(tmp_buf, " "); 
                     }
                     strcat(tmp_buf, "\n");
-                    printf("%s\n", tmp_buf);
                     for (int j = 0; j<UL->users[i].channel_count; i++){
                         if (strcmp(arr->argv[1], CL->channel_names[UL->users[i].channel_ids[j]].name) == 0){
                             id_channel = UL->users[i].channel_ids[j];
@@ -418,6 +417,31 @@ int main(int argc, char** argv){
                         send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);    
                             
                     }
+                    free_answer(arr);
+                    continue;
+
+                }
+
+                else if (strcmp(arr->argv[0], "PRIV") == 0){
+                    int FOUND_USER = 0;
+                    snprintf(tmp_buf, sizeof(tmp_buf), "TALK %s ", UL->users[i].name);
+                    for(int j = 2; j<arr->argc; j++){
+                        strcat(tmp_buf, arr->argv[j]);
+                        strcat(tmp_buf, " "); 
+                    }
+                    strcat(tmp_buf, "\n");
+
+                    for (int j = 0; j<UL->current_number_of_user; j++){
+                        if (strcmp(arr->argv[1], UL->users[j].name) == 0){
+                            FOUND_USER = 1;
+                            send(UL->users[j].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);    
+                            snprintf(tmp_buf, sizeof(tmp_buf), "SENT %s\n", UL->users[j].name);
+                            send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);    
+                        }
+                    }
+                    if (!FOUND_USER)
+                        send(UL->users[i].pfd.fd, "ERR! 11\n", 8, 0);
+                    
                     free_answer(arr);
                     continue;
 
