@@ -238,7 +238,29 @@ int main(int argc, char** argv){
                 }
 
                 if (len == 0 || (UL->users[i].pfd.revents & POLLHUP)){
+                    for (int j = 0; j<UL->users[i].channel_count; j++){
+                        int id_channel = UL->users[i].channel_ids[j];
+                        if (CL->channel_names[id_channel].member_count == 1){
+                            CL->channel_names[id_channel].member_count = -1;
+                            strcpy(CL->channel_names[id_channel].name, "");
+                            CL->dead_channels++;
+                            continue;
+                        }
+                        for(int k = 0; k<CL->channel_names[id_channel].member_count-1; k++){
+                            if(CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd){
+                                for(int l = k; l<CL->channel_names[id_channel].member_count-1; l++){
+                                    CL->channel_names[id_channel].member_list[l] = CL->channel_names[id_channel].member_list[l+1];
+                                }
+                                break;
+                            }
+                        }
+                        CL->channel_names[id_channel].member_count--;
+                    }
+
                     close(UL->users[i].pfd.fd);
+                    
+
+
 
                     for (int j = i; j < UL->current_number_of_user - 1; j++){
                         UL->users[j] = UL->users[j + 1];
@@ -278,7 +300,6 @@ int main(int argc, char** argv){
 
                     strcpy(UL->users[i].name, arr->argv[1]);
 
-                    printf("%s %d\n", UL->users[i].name, UL->users[i].pfd.fd);
 
                     send(UL->users[i].pfd.fd, "OKAY\n", 5, 0);
 
@@ -397,7 +418,6 @@ int main(int argc, char** argv){
                             id_channel = UL->users[i].channel_ids[j];
                             FOUND_CHANNEL = 1;
                             for (int k = 0; k<CL->channel_names[id_channel].member_count; k++){
-                                printf("%d %s\n", CL->channel_names[id_channel].member_list[k], UL->users[i].name);
                                 send(CL->channel_names[id_channel].member_list[k], tmp_buf, sizeof(tmp_buf), 0);
                             }
                             break;
@@ -477,6 +497,7 @@ int main(int argc, char** argv){
                 }
 
                 else if (strcmp(arr->argv[0], "EXIT") == 0){
+
                     int FOUND_CHANNEL = 0;
                     for (int j = 0; j<UL->users[i].channel_count; j++){
                         int id_channel = UL->users[i].channel_ids[j];
