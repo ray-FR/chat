@@ -423,6 +423,22 @@ int main(int argc, char** argv){
                 }
 
                 else if (strcmp(arr->argv[0], "PRIV") == 0){
+                    int len = 0;
+                    if(arr->argc < 3){
+                        send(UL->users[i].pfd.fd, "ERR! 01\n", 8, 0);
+                        free_answer(arr);
+                        continue; 
+                    }
+
+                    for (int j = 2; j<arr->argc; j++){
+                        len += strlen(arr->argv[j]);
+                    }
+                    if (len > 1024){
+                        send(UL->users[i].pfd.fd, "ERR! 21\n", 8, 0);
+                        free_answer(arr);
+                        continue;
+                    }
+
                     int FOUND_USER = 0;
                     snprintf(tmp_buf, sizeof(tmp_buf), "TALK %s ", UL->users[i].name);
                     for(int j = 2; j<arr->argc; j++){
