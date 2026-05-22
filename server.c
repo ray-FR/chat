@@ -476,6 +476,43 @@ int main(int argc, char** argv){
 
                 }
 
+                else if (strcmp(arr->argv[0], "EXIT") == 0){
+                    int FOUND_CHANNEL = 0;
+                    for (int j = 0; j<UL->users[i].channel_count; j++){
+                        int id_channel = UL->users[i].channel_ids[j];
+                        if (strcmp(CL->channel_names[id_channel].name, arr->argv[1]) == 0){
+                            FOUND_CHANNEL = 1;
+                            if (UL->users[i].channel_count == 1)
+                                UL->users[i].channel_ids[0] = -1; 
+                            for(int k = j; k<UL->users[i].channel_count-1; k++){
+                                UL->users[i].channel_ids[k] = UL->users[i].channel_ids[k+1];
+                            }
+                            if (CL->channel_names[id_channel].member_count == 1){
+                                CL->channel_names[id_channel].member_count = -1;
+                                strcpy(CL->channel_names[id_channel].name, "");
+                                CL->dead_channels++;
+                                break;
+                            }
+                            for(int k = 0; k<CL->channel_names[id_channel].member_count-1; k++){
+                                if (CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd){
+                                    for (int l = k; l<CL->channel_names[id_channel].member_count-1; l++)
+                                        CL->channel_names[id_channel].member_list[l] = CL->channel_names[id_channel].member_list[l+1];
+                                    break;  
+                                }
+                            }
+                            CL->channel_names[id_channel].member_count--;
+                            UL->users[i].channel_count--;
+                            break;
+                        }
+                    }
+                    if(!FOUND_CHANNEL)
+                        send(UL->users[i].pfd.fd, "ERR! 03\n", 8, 0);
+
+                    
+                    free_answer(arr);
+                    continue;
+                }
+
                 free_answer(arr);
             }
         }
