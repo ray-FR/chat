@@ -33,6 +33,7 @@ typedef struct channel_t{
 
 typedef struct channels_t{
     int channel_counter;
+    int dead_channels;
     channel channel_names[MAXNUM];
 } channels;
 
@@ -52,6 +53,7 @@ channels* init_channellist(){
     channels* CL = malloc(sizeof(channels));
     assert(CL);
     CL->channel_counter = 0;
+    CL->dead_channels = 0;
     return CL;
 }
 
