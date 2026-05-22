@@ -334,18 +334,29 @@ int main(int argc, char** argv){
 
                     if (!FOUND_CHANNEL){
                         int COUNTER = CL->channel_counter;
+                        int FOUND_DEAD_CHANNEL = 0;
+                        for (int j = 0; j<COUNTER; j++){
+                            if(strcmp(CL->channel_names[j].name, "") == 0){
+                                strcpy(CL->channel_names[j].name, arr->argv[1]);
+                                CL->channel_names[j].member_count = 0;
+                                CL->channel_names[j].member_list[CL->channel_names[j].member_count++] = UL->users[i].pfd.fd;
+                                UL->users[i].channel_ids[UL->users[i].channel_count++] = j;
+                                CL->dead_channels--;
+                                FOUND_DEAD_CHANNEL = 1;
+                                printf("NEW CHANNEL (DEAD) -- %s\n", CL->channel_names[j].name);
 
-                        strcpy(CL->channel_names[COUNTER].name, arr->argv[1]);
+                            }
+                        }
+                        if (!FOUND_DEAD_CHANNEL){
+                            strcpy(CL->channel_names[COUNTER].name, arr->argv[1]);
+                            CL->channel_names[COUNTER].member_count = 0;
+                            CL->channel_names[COUNTER].member_list[CL->channel_names[COUNTER].member_count++] = UL->users[i].pfd.fd;
+                            UL->users[i].channel_ids[UL->users[i].channel_count++] = COUNTER;
+                            CL->channel_counter++;
+                            printf("NEW CHANNEL -- %s\n", CL->channel_names[COUNTER].name);
 
-                        CL->channel_names[COUNTER].member_count = 0;
+                        }
 
-                        CL->channel_names[COUNTER].member_list[CL->channel_names[COUNTER].member_count++] = UL->users[i].pfd.fd;
-
-                        UL->users[i].channel_ids[UL->users[i].channel_count++] = COUNTER;
-
-                        CL->channel_counter++;
-
-                        printf("NEW CHANNEL -- %s\n", CL->channel_names[COUNTER].name);
                         sprintf(tmp_buf, "MEMB 1\n %s\n", UL->users[i].name);
                         send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
 
@@ -387,8 +398,6 @@ int main(int argc, char** argv){
                             FOUND_CHANNEL = 1;
                             for (int k = 0; k<CL->channel_names[id_channel].member_count; k++){
                                 printf("%d %s\n", CL->channel_names[id_channel].member_list[k], UL->users[i].name);
-                                if (CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd)
-                                    continue;
                                 send(CL->channel_names[id_channel].member_list[k], tmp_buf, sizeof(tmp_buf), 0);
                             }
                             break;
@@ -412,11 +421,13 @@ int main(int argc, char** argv){
                         continue;
                     }
 
-                    snprintf(tmp_buf, sizeof(tmp_buf), "LIST %d\n", CL->channel_counter);
+                    snprintf(tmp_buf, sizeof(tmp_buf), "LIST %d\n", CL->channel_counter - CL->dead_channels);
                     send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);
                     for (int j = 0; j<CL->channel_counter; j++){
-                        snprintf(tmp_buf, sizeof(tmp_buf), "%s\n", CL->channel_names[j].name);
-                        send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);    
+                        if(strcmp(CL->channel_names[j].name, "")){
+                            snprintf(tmp_buf, sizeof(tmp_buf), "%s\n", CL->channel_names[j].name);
+                            send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);
+                        }    
                             
                     }
                     free_answer(arr);
