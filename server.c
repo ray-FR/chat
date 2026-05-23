@@ -10,6 +10,7 @@
 #include <poll.h>
 #include <assert.h>
 #include <ctype.h>
+#include <time.h>
 
 #define MAXNUM 31
 
@@ -18,6 +19,7 @@ typedef struct user_t{
     char name[16];
     int channel_count;
     int channel_ids[MAXNUM];
+    unsigned long seconds_before_disconnect;
 } user;
 
 typedef struct userlist_t{
