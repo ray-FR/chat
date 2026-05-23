@@ -314,11 +314,11 @@ int main(int argc, char** argv){
                             if(CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd){
                                 for(int l = k; l<CL->channel_names[id_channel].member_count-1; l++){
                                     CL->channel_names[id_channel].member_list[l] = CL->channel_names[id_channel].member_list[l+1];
-                                    send(CL->channel_names[id_channel].member_list[l], tmp_buf, sizeof(tmp_buf), 0);
+                                    send(CL->channel_names[id_channel].member_list[l], tmp_buf, strlen(tmp_buf), 0);
                                 }
                                 break;
                             }
-                            send(CL->channel_names[id_channel].member_list[k], tmp_buf, sizeof(tmp_buf), 0);
+                            send(CL->channel_names[id_channel].member_list[k], tmp_buf, strlen(tmp_buf), 0);
                         }
                         CL->channel_names[id_channel].member_count--;
                     }
@@ -473,7 +473,7 @@ int main(int argc, char** argv){
 
                     int id_channel;
                     int FOUND_CHANNEL = 0;
-                    snprintf(tmp_buf, sizeof(tmp_buf), "TALK %s %s ", UL->users[i].name, arr->argv[1]);
+                    snprintf(tmp_buf, sizeof(tmp_buf), "TALK %s %s ", arr->argv[1], UL->users[i].name);
                     for(int j = 2; j<arr->argc; j++){
                         strcat(tmp_buf, arr->argv[j]);
                         strcat(tmp_buf, " "); 
@@ -484,7 +484,7 @@ int main(int argc, char** argv){
                             id_channel = UL->users[i].channel_ids[j];
                             FOUND_CHANNEL = 1;
                             for (int k = 0; k<CL->channel_names[id_channel].member_count; k++){
-                                send(CL->channel_names[id_channel].member_list[k], tmp_buf, sizeof(tmp_buf), 0);
+                                send(CL->channel_names[id_channel].member_list[k], tmp_buf, strlen(tmp_buf), 0);
                             }
                             break;
                         }
@@ -509,11 +509,11 @@ int main(int argc, char** argv){
                     }
 
                     snprintf(tmp_buf, sizeof(tmp_buf), "LIST %d\n", CL->channel_counter - CL->dead_channels);
-                    send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);
+                    send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
                     for (int j = 0; j<CL->channel_counter; j++){
                         if(strcmp(CL->channel_names[j].name, "")){
                             snprintf(tmp_buf, sizeof(tmp_buf), "%s\n", CL->channel_names[j].name);
-                            send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);
+                            send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
                         }    
                             
                     }
@@ -541,7 +541,7 @@ int main(int argc, char** argv){
                     }
 
                     int FOUND_USER = 0;
-                    snprintf(tmp_buf, sizeof(tmp_buf), "TALK %s ", UL->users[i].name);
+                    snprintf(tmp_buf, sizeof(tmp_buf), "PRIV %s ", UL->users[i].name);
                     for(int j = 2; j<arr->argc; j++){
                         strcat(tmp_buf, arr->argv[j]);
                         strcat(tmp_buf, " "); 
@@ -551,9 +551,9 @@ int main(int argc, char** argv){
                     for (int j = 0; j<UL->current_number_of_user; j++){
                         if (strcmp(arr->argv[1], UL->users[j].name) == 0){
                             FOUND_USER = 1;
-                            send(UL->users[j].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);    
+                            send(UL->users[j].pfd.fd, tmp_buf, strlen(tmp_buf), 0);    
                             snprintf(tmp_buf, sizeof(tmp_buf), "SENT %s\n", UL->users[j].name);
-                            send(UL->users[i].pfd.fd, tmp_buf, sizeof(tmp_buf), 0);    
+                            send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);    
                         }
                     }
                     if (!FOUND_USER)
@@ -623,11 +623,11 @@ int main(int argc, char** argv){
                             if(CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd){
                                 for(int l = k; l<CL->channel_names[id_channel].member_count-1; l++){
                                     CL->channel_names[id_channel].member_list[l] = CL->channel_names[id_channel].member_list[l+1];
-                                    send(CL->channel_names[id_channel].member_list[l], tmp_buf, sizeof(tmp_buf), 0);
+                                    send(CL->channel_names[id_channel].member_list[l], tmp_buf, strlen(tmp_buf), 0);
                                 }
                                 break;
                             }
-                            send(CL->channel_names[id_channel].member_list[k], tmp_buf, sizeof(tmp_buf), 0);
+                            send(CL->channel_names[id_channel].member_list[k], tmp_buf, strlen(tmp_buf), 0);
                         }
                         CL->channel_names[id_channel].member_count--;
                     }
