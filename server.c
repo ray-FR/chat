@@ -175,6 +175,9 @@ int main(int argc, char** argv){
     uint8_t buf[1024];
     char tmp_buf[1024];
 
+    time_t last_sec, now_sec;
+    last_sec = time(NULL);
+
     struct recv_command* arr;
 
     userlist* UL;
@@ -192,13 +195,70 @@ int main(int argc, char** argv){
     UL->users[0].pfd.events = POLLIN;
 
     for (;;){
+        int add_a_sec = 0;
         struct pollfd pfds[MAXNUM];
-
-        for (int i = 0; i < UL->current_number_of_user; i++){
-            pfds[i] = UL->users[i].pfd;
+        now_sec = time(NULL);
+        
+        
+        if(now_sec != last_sec){
+            add_a_sec = 1;
         }
 
-        ret = poll(pfds, UL->current_number_of_user, -1);
+        for (int i = 0; i < UL->current_number_of_user; i++){
+            if (add_a_sec && i > 0){
+                UL->users[i].seconds_before_disconnect++;
+            }
+            
+            if (i > 0 && UL->users[i].seconds_before_disconnect >= 30){
+                for (int j = 0; j<UL->users[i].channel_count; j++){
+                    int id_channel = UL->users[i].channel_ids[j];
+                    if (CL->channel_names[id_channel].member_count == 1){
+                        CL->channel_names[id_channel].member_count = -1;
+                        strcpy(CL->channel_names[id_channel].name, "");
+                        CL->dead_channels++;
+                        continue;
+                    }
+                    snprintf(tmp_buf, sizeof(tmp_buf), "QUIT %s\n", UL->users[i].name);
+                    for(int k = 0; k<CL->channel_names[id_channel].member_count-1; k++){
+                        if(CL->channel_names[id_channel].member_list[k] == UL->users[i].pfd.fd){
+                            for(int l = k; l<CL->channel_names[id_channel].member_count-1; l++){
+                                CL->channel_names[id_channel].member_list[l] = CL->channel_names[id_channel].member_list[l+1];
+                                send(CL->channel_names[id_channel].member_list[l], tmp_buf, strlen(tmp_buf), 0);
+                            }
+                            break;
+                        }
+                        send(CL->channel_names[id_channel].member_list[k], tmp_buf, strlen(tmp_buf), 0);
+                    }
+                    CL->channel_names[id_channel].member_count--;
+                }
+                close(UL->users[i].pfd.fd);
+                
+
+                for (int j = i; j < UL->current_number_of_user - 1; j++){
+                    UL->users[j] = UL->users[j + 1];
+                }
+
+                UL->current_number_of_user--;
+                i--;
+            } 
+               
+            
+        }
+
+        if (add_a_sec)
+            last_sec = now_sec;
+
+        for (int i = 0; i < UL->current_number_of_user; i++) {
+            pfds[i].fd = UL->users[i].pfd.fd;
+            pfds[i].events = POLLIN; 
+            pfds[i].revents = 0;      
+        }
+        
+            
+
+        
+
+        ret = poll(pfds, UL->current_number_of_user, 0);
 
         if (ret < 0){
             perror("poll");
@@ -224,6 +284,7 @@ int main(int argc, char** argv){
             UL->users[COUNTER].pfd.fd = userfd;
             UL->users[COUNTER].pfd.events = POLLIN;
             UL->users[COUNTER].channel_count = 0;
+            UL->users[COUNTER].seconds_before_disconnect = 0;
 
             strcpy(UL->users[COUNTER].name, "");
 
@@ -308,13 +369,14 @@ int main(int argc, char** argv){
 
                     send(UL->users[i].pfd.fd, "OKAY\n", 5, 0);
 
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
-
                     continue;
                 }
 
                 else if (strcmp(UL->users[i].name, "") == 0){
                     send(UL->users[i].pfd.fd, "ERR! 02\n", 8, 0);
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
                 }
@@ -387,9 +449,8 @@ int main(int argc, char** argv){
                         send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
 
                     }
-
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
-
                     continue;
                 }
 
@@ -433,6 +494,7 @@ int main(int argc, char** argv){
                         free_answer(arr);
                         continue;
                     }
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
                     
@@ -455,6 +517,7 @@ int main(int argc, char** argv){
                         }    
                             
                     }
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
 
@@ -496,6 +559,7 @@ int main(int argc, char** argv){
                     if (!FOUND_USER)
                         send(UL->users[i].pfd.fd, "ERR! 11\n", 8, 0);
                     
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
 
@@ -531,10 +595,12 @@ int main(int argc, char** argv){
                             break;
                         }
                     }
+                    
                     if(!FOUND_CHANNEL)
                         send(UL->users[i].pfd.fd, "ERR! 03\n", 8, 0);
 
                     
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
                 }
@@ -573,12 +639,21 @@ int main(int argc, char** argv){
 
                     UL->current_number_of_user--;
                     i--;
+                    UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
                 
                 }
-                
 
+                else if(strcmp(arr->argv[0], "PING") == 0){
+                    UL->users[i].seconds_before_disconnect = 0;
+                    send(UL->users[i].pfd.fd, "PONG\n", 5, 0);
+                    free_answer(arr);
+                    continue;
+                }
+                
+                send(UL->users[i].pfd.fd, "ERR! 01\n", 8, 0);
+                
                 free_answer(arr);
             }
         }
