@@ -592,6 +592,10 @@ int main(int argc, char** argv){
                             }
                             CL->channel_names[id_channel].member_count--;
                             UL->users[i].channel_count--;
+                            snprintf(tmp_buf, sizeof(tmp_buf), "EXIT %s %s\n", UL->users[i].name, CL->channel_names[id_channel].name);
+                            for (int k = 0; k<CL->channel_names[id_channel].member_count; k++){
+                                send(CL->channel_names[id_channel].member_list[k], tmp_buf, strlen(tmp_buf), 0);
+                            }
                             break;
                         }
                     }
