@@ -352,6 +352,7 @@ int main(int argc, char** argv){
                 }
 
                 else if (strcmp(arr->argv[0], "NAME") == 0){
+                    int FOUND_USER = 0;
                     if (arr->argc != 2){
                         send(UL->users[i].pfd.fd, "ERR! 10\n", 8, 0);
                         free_answer(arr);
@@ -363,11 +364,17 @@ int main(int argc, char** argv){
                         free_answer(arr);
                         continue;
                     }
-
-                    strcpy(UL->users[i].name, arr->argv[1]);
-
-
-                    send(UL->users[i].pfd.fd, "OKAY\n", 5, 0);
+                    for (int j = 0; j<UL->current_number_of_user; j++){
+                        if (strcmp(arr->argv[1], UL->users[j].name) == 0){
+                            FOUND_USER = 1;
+                            send(UL->users[i].pfd.fd, "ERR! 12\n", 8, 0);
+                            break;
+                        }
+                    }
+                    if (!FOUND_USER){
+                        strcpy(UL->users[i].name, arr->argv[1]);
+                        send(UL->users[i].pfd.fd, "OKAY\n", 5, 0);
+                    }
 
                     UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
