@@ -415,8 +415,11 @@ int main(int argc, char** argv){
                                 for (int l = 1; l < UL->current_number_of_user; l++){
                                     if (CL->channel_names[j].member_list[k] == UL->users[l].pfd.fd){
                                         snprintf(tmp_buf, sizeof(tmp_buf), "%s\n", UL->users[l].name);
-                                        //TODO: send JOIN member to other members of said channel
                                         send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
+                                        if (UL->users[l].pfd.fd != UL->users[i].pfd.fd){
+                                            snprintf(tmp_buf, sizeof(tmp_buf), "JOIN %s %s\n", UL->users[i].name, CL->channel_names[j].name);
+                                            send(UL->users[l].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
+                                        }
                                     }
                                 }
                             }
