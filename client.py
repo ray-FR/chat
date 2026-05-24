@@ -99,7 +99,7 @@ def on_action(e, type):
     if type == 7:
         selected_channel = current_channellist.focus()
         
-        if current_channellist.item(selected_channel)["text"] != "Bienvenue--------" and messages_history[current_channellist.item(selected_channel)["text"]][1] != 1:
+        if current_channellist.item(selected_channel)["text"] != "Bienvenue--------" and messages_history[current_channellist.item(selected_channel)["text"]][1] == 1:
             sock.send((f"EXIT {current_channellist.item(selected_channel)['text']}\n").encode())
             del messages_history[current_channellist.item(selected_channel)['text']]
             current_channellist.delete(selected_channel)
