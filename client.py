@@ -66,7 +66,7 @@ def on_action(e, type):
                 sock.send((f"TALK {current_channellist.item(selected_channel)["text"]} {str_interaction_entry.get()}\n").encode())
             else:
                 sock.send((f"PRIV {current_channellist.item(selected_channel)["text"]} {str_interaction_entry.get()}\n").encode())
-                messages_history[(current_channellist.item(selected_channel)["text"])][0].append([f"{name['text']}: {str_interaction_entry.get()}"])
+                messages_history[(current_channellist.item(selected_channel)["text"])][0].append([f"{name['text'][5:]}: {str_interaction_entry.get()}"])
                 fill_discussion(None)
 
             str_interaction_entry.set("")
@@ -99,7 +99,7 @@ def on_action(e, type):
     if type == 7:
         selected_channel = current_channellist.focus()
         
-        if current_channellist.item(selected_channel)["text"] != "Bienvenue--------":
+        if current_channellist.item(selected_channel)["text"] != "Bienvenue--------" and messages_history[current_channellist.item(selected_channel)["text"]][1] != 1:
             sock.send((f"EXIT {current_channellist.item(selected_channel)['text']}\n").encode())
             del messages_history[current_channellist.item(selected_channel)['text']]
             current_channellist.delete(selected_channel)
