@@ -425,7 +425,6 @@ int main(int argc, char** argv){
                             }
 
                             FOUND_CHANNEL = 1;
-
                             break;
                         }
                     }
@@ -457,8 +456,8 @@ int main(int argc, char** argv){
 
                         sprintf(tmp_buf, "MEMB 1\n %s\n", UL->users[i].name);
                         send(UL->users[i].pfd.fd, tmp_buf, strlen(tmp_buf), 0);
-
                     }
+
                     UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
@@ -466,6 +465,7 @@ int main(int argc, char** argv){
 
                 else if (strcmp(arr->argv[0], "TALK") == 0){
                     int len = 0;
+
                     if(arr->argc < 3){
                         send(UL->users[i].pfd.fd, "ERR! 01\n", 8, 0);
                         free_answer(arr);
@@ -475,8 +475,9 @@ int main(int argc, char** argv){
                     for (int j = 2; j<arr->argc; j++){
                         len += strlen(arr->argv[j]);
                     }
+
                     if (len > 1024){
-                        send(UL->users[i].pfd.fd, "ERR! 21\n", 8, 0);
+                        send(UL->users[i].pfd.fd, "ERR! 20\n", 8, 0);
                         free_answer(arr);
                         continue;
                     }
@@ -489,7 +490,7 @@ int main(int argc, char** argv){
                         strcat(tmp_buf, " "); 
                     }
                     strcat(tmp_buf, "\n");
-                    for (int j = 0; j<UL->users[i].channel_count; i++){
+                    for (int j = 0; j<UL->users[i].channel_count; j++){
                         if (strcmp(arr->argv[1], CL->channel_names[UL->users[i].channel_ids[j]].name) == 0){
                             id_channel = UL->users[i].channel_ids[j];
                             FOUND_CHANNEL = 1;
@@ -510,6 +511,7 @@ int main(int argc, char** argv){
                     
                 }
 
+
                 else if (strcmp(arr->argv[0], "LIST") == 0){
 
                     if (arr->argc != 1){
@@ -527,6 +529,7 @@ int main(int argc, char** argv){
                         }    
                             
                     }
+
                     UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
@@ -545,7 +548,7 @@ int main(int argc, char** argv){
                         len += strlen(arr->argv[j]);
                     }
                     if (len > 1024){
-                        send(UL->users[i].pfd.fd, "ERR! 21\n", 8, 0);
+                        send(UL->users[i].pfd.fd, "ERR! 20\n", 8, 0);
                         free_answer(arr);
                         continue;
                     }
@@ -574,6 +577,7 @@ int main(int argc, char** argv){
                     continue;
 
                 }
+
 
                 else if (strcmp(arr->argv[0], "EXIT") == 0){
 
@@ -613,7 +617,6 @@ int main(int argc, char** argv){
                     if(!FOUND_CHANNEL)
                         send(UL->users[i].pfd.fd, "ERR! 03\n", 8, 0);
 
-                    
                     UL->users[i].seconds_before_disconnect = 0;
                     free_answer(arr);
                     continue;
@@ -644,9 +647,6 @@ int main(int argc, char** argv){
 
                     close(UL->users[i].pfd.fd);
                     
-
-
-
                     for (int j = i; j < UL->current_number_of_user - 1; j++){
                         UL->users[j] = UL->users[j + 1];
                     }
@@ -658,6 +658,7 @@ int main(int argc, char** argv){
                     continue;
                 
                 }
+
 
                 else if(strcmp(arr->argv[0], "PING") == 0){
                     UL->users[i].seconds_before_disconnect = 0;
